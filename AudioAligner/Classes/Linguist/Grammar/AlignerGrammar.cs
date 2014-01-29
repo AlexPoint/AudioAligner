@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using edu.cmu.sphinx.linguist.language.grammar;
 using edu.cmu.sphinx.util;
 using ikvm.extensions;
+using edu.cmu.sphinx.util.props;
+using Dictionary = edu.cmu.sphinx.linguist.dictionary.Dictionary;
 
 namespace AudioAligner.Classes.Linguist.Grammar
 {
