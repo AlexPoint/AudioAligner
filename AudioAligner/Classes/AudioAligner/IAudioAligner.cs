@@ -10,45 +10,45 @@ namespace AudioAligner.Classes.AudioAligner
     {
         // Allow dynamic audio change
 	    // returns true if change succeeded
-	    public boolean setAudio(String pathToAudio);
+	    bool setAudio(String pathToAudio);
 
 	    // Allow dynamic transcription change
 	    // returns false if change failed
-	    public boolean setText(String text) throws Exception;
+	    bool setText(String text);
 	
 	    // Allow Deletions
-	    public boolean allowDeletions();
+	    bool allowDeletions();
 	
 	    // Allow Repetions
-	    public boolean allowRepetions();
+	    bool allowRepetions();
 	
 	    // Allow BackwardJumps
-	    public boolean allowBackwardJumps();
+	    bool allowBackwardJumps();
 
 	    // optimize values for aligner configuration
-	    public void optimize();
+	    void optimize();
 
 	    // align audio and return alignment result
-	    public String align() throws Exception;
+	    string align();
 
-	    public void setAbsoluteBeamWidth(String absoluteBeamWidth);
+	    void setAbsoluteBeamWidth(string absoluteBeamWidth);
 
-	    public void setRelativeBeamWidth(String relativeBeamWidth);
+	    void setRelativeBeamWidth(string relativeBeamWidth);
 	
-	    public void setAddOutOfGrammarBranchProperty(String addOutOfGrammarBranch);
+	    void setAddOutOfGrammarBranchProperty(string addOutOfGrammarBranch);
 
-	    public void setOutOfGrammarProbability(String outOfGrammarProbability);
+	    void setOutOfGrammarProbability(string outOfGrammarProbability);
 
-	    public void setPhoneInsertionProbability(String phoneInsertionProbability);
+	    void setPhoneInsertionProbability(string phoneInsertionProbability);
 
-	    public void setForwardJumpProbability(double prob);
+	    void setForwardJumpProbability(double prob);
 
-	    public void setBackwardJumpProbability(double prob);
+	    void setBackwardJumpProbability(double prob);
 
-	    public void setSelfLoopProbability(double prob);
+	    void setSelfLoopProbability(double prob);
 	
-	    public void setNumGrammarJumps(int n);
+	    void setNumGrammarJumps(int n);
 	
-	    public void performPhraseSpotting(boolean doPhraseSpotting);
+	    void performPhraseSpotting(bool doPhraseSpotting);
     }
 }
