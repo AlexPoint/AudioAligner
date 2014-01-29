@@ -98,7 +98,7 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	    }
 
 	    //@Override
-	    protected GrammarNode createGrammar(){
+        protected override GrammarNode createGrammar(){
 
 		    //logger.info("Creating Grammar");
 		    initialNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
@@ -107,12 +107,12 @@ namespace AudioAligner.Classes.Linguist.Grammar
 		    GrammarNode branchNode = createGrammarNode(false);
 
 		    List<GrammarNode> wordGrammarNodes = new List<GrammarNode>();
-		    int end = tokens.size();
+		    int end = tokens.Count;
 
 		    //logger.info("Creating Grammar nodes");
-		    foreach (string word : tokens.subList(0, end)) {
+		    foreach (var word in tokens.Take(end)) {
 			    GrammarNode wordNode = createGrammarNode(word.toLowerCase());
-			    wordGrammarNodes.add(wordNode);
+			    wordGrammarNodes.Add(wordNode);
 		    }
 		    //logger.info("Done creating grammar node");
 		
@@ -136,20 +136,23 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	    }
 
 	    private void addSelfLoops(List<GrammarNode> wordGrammarNodes) {
-		    ListIterator<GrammarNode> iter = wordGrammarNodes.listIterator();
+		    /*ListIterator<GrammarNode> iter = wordGrammarNodes.listIterator();
 		    while (iter.hasNext()) {
 			    GrammarNode currNode = iter.next();
 			    currNode.add(currNode, logMath.linearToLog(selfLoopProbability));
-		    }
-
+		    }*/
+	        foreach (var wordGrammarNode in wordGrammarNodes)
+	        {
+	            wordGrammarNode.add(wordGrammarNode, logMath.linearToLog(selfLoopProbability));
+	        }
 	    }
 
 	    private void addBackwardJumps(List<GrammarNode> wordGrammarNodes, GrammarNode branchNode, GrammarNode finalNode2) {
 		    GrammarNode currNode;
-		    for (int i = 0; i < wordGrammarNodes.size(); i++) {
-			    currNode = wordGrammarNodes.get(i);
-			    for (int j = Math.max(i - numAllowedWordJumps - 1, 0); j < i - 1; j++) {
-				    GrammarNode jumpToNode = wordGrammarNodes.get(j);
+		    for (int i = 0; i < wordGrammarNodes.Count; i++) {
+			    currNode = wordGrammarNodes[i];
+			    for (int j = Math.Max(i - numAllowedWordJumps - 1, 0); j < i - 1; j++) {
+				    GrammarNode jumpToNode = wordGrammarNodes[j];
 				    currNode.add(
 						    jumpToNode,
 						    logMath.linearToLog(backwardTransitionProbability));
@@ -160,40 +163,45 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	    private void addForwardJumps(List<GrammarNode> wordGrammarNodes,
 			    GrammarNode branchNode, GrammarNode finalNode) {
 		    GrammarNode currNode = branchNode;
-		    for (int i = -1; i < wordGrammarNodes.size(); i++) {
+		    for (int i = -1; i < wordGrammarNodes.Count; i++) {
 			    if (i > -1) {
-				    currNode = wordGrammarNodes.get(i);
+				    currNode = wordGrammarNodes[i];
 			    }
-			    for (int j = i + 2; j < Math.min(wordGrammarNodes.size(), i
-					    + numAllowedWordJumps + 1); j++) {
-				    GrammarNode jumpNode = wordGrammarNodes.get(j);
+			    for (int j = i + 2; j < Math.Min(wordGrammarNodes.Count, i + numAllowedWordJumps + 1); j++) {
+				    GrammarNode jumpNode = wordGrammarNodes[j];
 				    currNode.add(
 						    jumpNode,
 						    logMath.linearToLog(forwardJumpProbability));
 			    }
 		    }
-		    for (int i = wordGrammarNodes.size() - numAllowedWordJumps - 1; i < wordGrammarNodes
-				    .size() - 1; i++) {
-			    int j = wordGrammarNodes.size();
-			    currNode = wordGrammarNodes.get(i);
-			    currNode.add(
-					    finalNode,
-					    logMath.linearToLog((float)forwardJumpProbability
-							    * Math.pow(Math.E, j - i)));
+		    for (int i = wordGrammarNodes.Count - numAllowedWordJumps - 1; i < wordGrammarNodes.Count - 1; i++) {
+			    int j = wordGrammarNodes.Count;
+			    currNode = wordGrammarNodes[i];
+			    currNode.add(finalNode, logMath.linearToLog((float)forwardJumpProbability * Math.Pow(Math.E, j - i)));
 		    }
 
 	    }
 
 	    private void createBaseGrammar(List<GrammarNode> wordGrammarNodes,
 			    GrammarNode branchNode, GrammarNode finalNode) {
-		    GrammarNode currNode = branchNode;
-		    ListIterator<GrammarNode> iter = wordGrammarNodes.listIterator();
-		    while (iter.hasNext()) {
-			    GrammarNode nextNode = iter.next();
-			    currNode.add(nextNode, logMath.getLogOne());
-			    currNode = nextNode;
-		    }
-		    currNode.add(finalNode, logMath.getLogOne());
-	    }
+            branchNode.add(wordGrammarNodes[0], logMath.getLogOne());
+		    for (var i = 0; i < wordGrammarNodes.Count - 1; i++)
+	        {
+	            var currNode = wordGrammarNodes[i];
+	            var nextNode = wordGrammarNodes[i + 1];
+                currNode.add(nextNode, logMath.getLogOne());
+	        }
+	        var lastNode = wordGrammarNodes[wordGrammarNodes.Count - 1];
+            lastNode.add(finalNode, logMath.getLogOne());
+            /*GrammarNode currNode = branchNode;
+                * ListIterator<GrammarNode> iter = wordGrammarNodes.listIterator();
+            while (iter.hasNext()) {
+                GrammarNode nextNode = iter.next();
+                currNode.add(nextNode, logMath.getLogOne());
+                currNode = nextNode;
+            }
+            currNode.add(finalNode, logMath.getLogOne());*/
+		}
+
     }
 }
