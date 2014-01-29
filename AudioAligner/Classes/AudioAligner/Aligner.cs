@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioAligner.Classes.Linguist.Grammar;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend.util;
 using edu.cmu.sphinx.recognizer;
@@ -43,7 +44,7 @@ namespace AudioAligner.Classes.AudioAligner
 	    private string audioFile;
 	    private string textFile;
 	    private string txtInTranscription;
-	    private List<PhraseSpotterResult> phraseSpotterResult;
+	    private List<edu.cmu.sphinx.PhraseSpotterResult> phraseSpotterResult;
 
 	    public Aligner(string config, string audioFile, string textFile){
 		    this(config, audioFile, textFile, "recognizer", "AlignerGrammar",
