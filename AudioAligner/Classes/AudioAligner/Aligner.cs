@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using edu.cmu.sphinx.decoder.search;
+using edu.cmu.sphinx.frontend.util;
+using edu.cmu.sphinx.recognizer;
+using edu.cmu.sphinx.result;
+using edu.cmu.sphinx.util.props;
 
 namespace AudioAligner.Classes.AudioAligner
 {
@@ -174,8 +179,7 @@ namespace AudioAligner.Classes.AudioAligner
 								    + " But Aligner will not stop");
 				    e.printStackTrace();
 			    }
-			    System.out
-					    .println("Skipping 5 words in transcription to select next phrase");
+			    System.out.println("Skipping 5 words in transcription to select next phrase");
 			    iter = 0;
 			    while (iter < 5 && tok.hasMoreTokens()) {
 				    tok.nextToken();
@@ -194,7 +198,7 @@ namespace AudioAligner.Classes.AudioAligner
 		    return phraseSpotter.getTimedResult();
 	    }
 
-	    private void allocate() throws IOException {
+	    private void allocate(){
 		    datasource.setAudioFile(new URL("file:" + audioFile), null);
 
 		    System.out.println("Transcription: " + txtInTranscription);
