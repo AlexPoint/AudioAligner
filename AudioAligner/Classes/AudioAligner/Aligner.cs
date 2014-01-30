@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioAligner.Classes.Linguist.Grammar;
+using AudioAligner.Classes.PhraseSpotter;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend.util;
 using edu.cmu.sphinx.recognizer;
@@ -37,29 +38,23 @@ namespace AudioAligner.Classes.AudioAligner
 	    private AlignerGrammar grammar;
 	    private AudioFileDataSource datasource;
 
-	    private bool optimize; // by default set this false
+	    private bool optimizeP; // by default set this false
 
 	    private string config;
 	    private string psConfig;
 	    private string audioFile;
 	    private string textFile;
 	    private string txtInTranscription;
-	    private List<edu.cmu.sphinx.PhraseSpotterResult> phraseSpotterResult;
+	    private List<PhraseSpotterResult> phraseSpotterResult;
 
-	    public Aligner(string config, string audioFile, string textFile){
-		    this(config, audioFile, textFile, "recognizer", "AlignerGrammar",
-				    "audioFileDataSource");
-	    }
+	    public Aligner(string config, string audioFile, string textFile): 
+            this(config, audioFile, textFile, "recognizer", "AlignerGrammar", "audioFileDataSource"){}
 
-	    public Aligner(string config, string audioFile, string textFile, string recognizerName, string grammarName, string audioDataSourceName){
-		    this(config, audioFile, textFile, recognizerName, grammarName, "",
-				    audioDataSourceName);
-	    }
+	    public Aligner(string config, string audioFile, string textFile, string recognizerName, string grammarName, string audioDataSourceName):
+		    this(config, audioFile, textFile, recognizerName, grammarName, "", audioDataSourceName){}
 
-	    public Aligner(string config, string audioFile, string textFile, string recognizerName, string grammarName, string grammarType, string audioDataSourceName){
-		    this(config, audioFile, textFile, recognizerName, grammarName,
-				    audioDataSourceName, true);
-	    }
+	    public Aligner(string config, string audioFile, string textFile, string recognizerName, string grammarName, string grammarType, string audioDataSourceName):
+		    this(config, audioFile, textFile, recognizerName, grammarName, audioDataSourceName, true){}
 
 	    public Aligner(string config, string audioFile, string textFile, string recognizerName, string grammarName, string audioDataSourceName, bool optimize){
 		    this.config = config;
@@ -68,13 +63,13 @@ namespace AudioAligner.Classes.AudioAligner
 		    this.PROP_RECOGNIZER = recognizerName;
 		    this.PROP_GRAMMAR = grammarName;
 		    this.PROP_AUDIO_DATA_SOURCE = audioDataSourceName;
-		    this.optimize = optimize;
+		    this.optimizeP = optimize;
 		    this.PROP_PERFORM_SPOTTING = false;
 		    this.PROP_MODEL_BACKWARDJUMPS = false;
 		    this.PROP_MODEL_DELETIONS = false;
 		    this.PROP_MODEL_REPETITIONS =  false;
 		    txtInTranscription = readTranscription();
-		    phraseSpotterResult = new LinkedList<PhraseSpotterResult>();
+		    phraseSpotterResult = new List<PhraseSpotterResult>();
 
 		    cm = new ConfigurationManager(config);
 		    absoluteBeamWidth = cm.getGlobalProperty("absoluteBeamWidth");
@@ -122,7 +117,7 @@ namespace AudioAligner.Classes.AudioAligner
 	    
 	    public string align(){
 		    if (PROP_PERFORM_SPOTTING) {
-			    phraseSpotterResult = new LinkedList<PhraseSpotterResult>();
+			    phraseSpotterResult = new List<PhraseSpotterResult>();
 			    collectPhraseSpottingResult();
 		    }
 
@@ -159,7 +154,8 @@ namespace AudioAligner.Classes.AudioAligner
 				    phraseToSpot += tok.nextToken() + " ";
 				    iter++;
 			    }
-			    System.out.println("\n Spotting Phrase: " + phraseToSpot);
+			    //System.out.println("\n Spotting Phrase: " + phraseToSpot);
+                Console.WriteLine("\n Spotting Phrase: " + phraseToSpot);
 			    try {
 
 				    List<PhraseSpotterResult> tmpResult = phraseSpotting(phraseToSpot);
@@ -170,17 +166,21 @@ namespace AudioAligner.Classes.AudioAligner
 
 					    PhraseSpotterResult nextResult = iterator.next();
 
-					    System.out.println(nextResult);
+					    //System.out.println(nextResult);
+                        Console.WriteLine(nextResult);
 
 					    phraseSpotterResult.add(nextResult);
 				    }
 			    } catch (Exception e) {
-				    System.out
+				    /*System.out
 						    .println("An unknown exception occured in phrase Spotter."
 								    + " But Aligner will not stop");
-				    e.printStackTrace();
+				    e.printStackTrace();*/
+                    Console.WriteLine("An unknown exception occured in phrase Spotter."
+								    + " But Aligner will not stop. " + e);
 			    }
-			    System.out.println("Skipping 5 words in transcription to select next phrase");
+			    //System.out.println("Skipping 5 words in transcription to select next phrase");
+                Console.WriteLine("Skipping 5 words in transcription to select next phrase");
 			    iter = 0;
 			    while (iter < 5 && tok.hasMoreTokens()) {
 				    tok.nextToken();
@@ -202,7 +202,8 @@ namespace AudioAligner.Classes.AudioAligner
 	    private void allocate(){
 		    datasource.setAudioFile(new URL("file:" + audioFile), null);
 
-		    System.out.println("Transcription: " + txtInTranscription);
+		    //System.out.println("Transcription: " + txtInTranscription);
+            Console.WriteLine("Transcription: " + txtInTranscription);
 		    grammar.setText(txtInTranscription);
 		    grammar.allowBackwardJumps(PROP_MODEL_BACKWARDJUMPS);
 		    grammar.allowDeletions(PROP_MODEL_DELETIONS);
