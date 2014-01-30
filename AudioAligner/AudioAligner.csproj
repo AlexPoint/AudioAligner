@@ -108,7 +108,7 @@
       <HintPath>..\packages\IKVM.7.2.4630.5\lib\IKVM.Runtime.JNI.dll</HintPath>
     </Reference>
     <Reference Include="sphinx4">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\ikvm-7.2.4630.5\bin\sphinx\sphinx4.dll</HintPath>
+      <HintPath>libs\sphinx4.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
