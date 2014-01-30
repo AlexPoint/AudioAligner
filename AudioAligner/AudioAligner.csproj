@@ -124,6 +124,7 @@
     <Compile Include="Classes\Linguist\Grammar\AlignerGrammar.cs" />
     <Compile Include="Classes\PhraseSpotter\PhraseSpotterResult.cs" />
     <Compile Include="Classes\PhraseSpotter\PraseSpotter.cs" />
+    <Compile Include="Classes\Util\StringErrorGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

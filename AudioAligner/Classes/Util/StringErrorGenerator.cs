@@ -224,7 +224,7 @@ namespace AudioAligner.Classes.Util
 			    }
 			    numWords = words.size();
 		    } else {
-			    throw new Error("ERROR: Can not allocate on a <null> text. ");
+			    throw new Exception("ERROR: Can not allocate on a <null> text. ");
 		    }
 	    }
 	
