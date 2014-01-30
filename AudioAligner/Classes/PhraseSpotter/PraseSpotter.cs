@@ -18,15 +18,15 @@ namespace AudioAligner.Classes.PhraseSpotter
 	    public const string PROP_LINGUIST = "linguist";
 	    public const string PROP_AUDIO_DATA_SOURCE = "audioFileDataSource";
 	
-	    public void deallocate();
+	    public abstract void deallocate();
 	
-	    public void startSpotting();
+	    public abstract void startSpotting();
 	
-	    public void setPhrase(string phrase);
+	    public abstract void setPhrase(string phrase);
 	
-	    public List<PhraseSpotterResult> getTimedResult();
+	    public abstract List<PhraseSpotterResult> getTimedResult();
 	
-	    public void setAudioDataSource(URL audioFile);
+	    public abstract void setAudioDataSource(Uri audioFile);
 
         public abstract void newProperties(PropertySheet ps);
     }
