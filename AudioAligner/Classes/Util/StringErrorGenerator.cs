@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using edu.cmu.sphinx.linguist.dictionary;
 
 namespace AudioAligner.Classes.Util
 {
-    class stringErrorGenerator
+    class StringErrorGenerator
     {
         private string text = null;
 	    private double wer = 0.03;
@@ -25,7 +24,7 @@ namespace AudioAligner.Classes.Util
 	    private List<Word> words;
 	    private Uri pathToWordFile ;
 
-	    public stringErrorGenerator(){
+	    public StringErrorGenerator(){
 		    this.pathToWordFile = new Uri("file:./resource/models/wordFile.txt");
 	    }
 
@@ -33,7 +32,7 @@ namespace AudioAligner.Classes.Util
 	     * Divides the input word error rate equally into insertions, deletions and
 	     * substitution rates.
 	     */
-	    public stringErrorGenerator(double wer, string text): this(){
+	    public StringErrorGenerator(double wer, string text): this(){
 		    this.wer = wer;
 		    this.ir = wer / 3;
 		    this.dr = wer / 3;
@@ -42,7 +41,7 @@ namespace AudioAligner.Classes.Util
 	    }
 
 	    // intialise un-equal error rates
-	    public stringErrorGenerator(double ir, double dr, double sr, string text): this(){
+	    public StringErrorGenerator(double ir, double dr, double sr, string text): this(){
 		    this.wer = ir + dr + sr;
 		    this.ir = ir;
 		    this.dr = dr;
@@ -67,9 +66,9 @@ namespace AudioAligner.Classes.Util
 		    BufferedReader reader = new BufferedReader(new InputStreamReader(
 				    pathToWordFile.openStream()));
 		    string line;
-		    wordsToInsert = new LinkedList<string>();
+	        wordsToInsert = new List<string>();
 		    while ((line = reader.readLine()) != null) {
-			    wordsToInsert.add(line);
+			    wordsToInsert.Add(line);
 		    }
 		    // Check for compatible word error rates
 		    check_compatible();
@@ -116,7 +115,7 @@ namespace AudioAligner.Classes.Util
 					    Word word = new Word(wordToInsert,currWord.getStartTime() , 
 							    currWord.getEndTime(), 0.01);
 					    word.substituteWord();
-					    words.add(currIndex,word);
+					    words.Add(currIndex,word);
 					    iter = words.listIterator(currIndex);
 					    substitutionCount++;
 					    currIndex--;
@@ -208,34 +207,41 @@ namespace AudioAligner.Classes.Util
 		    return wordListTostring();
 	    }
 	
-	    public LinkedList<Word> getWordList() {
+	    public List<Word> getWordList() {
 		    return words;
 	    }
 	
 	    private void textToWordList(){
 		    if (text != null) {
-			    string[] wordTokens = text.split(" ");
-			    words = new LinkedList<Word>();
-			    for (int i = 0; i < wordTokens.length; i++) {
-				    if (wordTokens[i].compareTo("") != 0) {
+			    string[] wordTokens = text.Split(' ');
+			    words = new List<Word>();
+			    for (int i = 0; i < wordTokens.Length; i++) {
+				    if (wordTokens[i].CompareTo("") != 0) {
 					    //words.add(new Word(wordTokens[i]));			
-					    words.add(new Word(wordTokens[i], 0.0, 0.0, 0.0));
+					    words.Add(new Word(wordTokens[i], 0.0, 0.0, 0.0));
 				    }
 			    }
-			    numWords = words.size();
+			    numWords = words.Count;
 		    } else {
 			    throw new Exception("ERROR: Can not allocate on a <null> text. ");
 		    }
 	    }
 	
 	    private string wordListTostring() {
-		    ListIterator<Word> iter = words.listIterator();
+		    //ListIterator<Word> iter = words.listIterator();
 		    string result="";
-		    while(iter.hasNext()){
+		    /*while(iter.hasNext()){
 			    Word nextTok = iter.next();
 			    if(!(nextTok.isDeleted() || nextTok.isSubstituted()))
 			    result = result.concat(nextTok.getWord()+" ");
-		    }
+		    }*/
+	        foreach (var word in words)
+	        {
+	            if (!(word.isDeleted() || word.isSubstituted()))
+	            {
+	                result += word.getWord() + " ";
+	            }
+	        }
 		    return result;
 	    }
 
