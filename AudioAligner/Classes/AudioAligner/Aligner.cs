@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioAligner.Classes.Decoder.Search;
 using AudioAligner.Classes.Linguist.Grammar;
 using AudioAligner.Classes.PhraseSpotter;
 using edu.cmu.sphinx.decoder.search;
@@ -10,6 +11,10 @@ using edu.cmu.sphinx.frontend.util;
 using edu.cmu.sphinx.recognizer;
 using edu.cmu.sphinx.result;
 using edu.cmu.sphinx.util.props;
+using java.io;
+using java.net;
+using java.util;
+using Console = System.Console;
 
 namespace AudioAligner.Classes.AudioAligner
 {
@@ -146,7 +151,7 @@ namespace AudioAligner.Classes.AudioAligner
 	    }
 
 	    private void collectPhraseSpottingResult(){
-		    stringTokenizer tok = new stringTokenizer(txtInTranscription);
+		    StringTokenizer tok = new StringTokenizer(txtInTranscription);
 		    while (tok.hasMoreTokens()) {
 			    string phraseToSpot = "";
 			    int iter = 0;
@@ -159,7 +164,13 @@ namespace AudioAligner.Classes.AudioAligner
 			    try {
 
 				    List<PhraseSpotterResult> tmpResult = phraseSpotting(phraseToSpot);
-				    ListIterator<PhraseSpotterResult> iterator = tmpResult
+			        foreach (var result in tmpResult)
+			        {
+                        Console.WriteLine(result);
+
+                        phraseSpotterResult.Add(result);
+			        }
+				    /*ListIterator<PhraseSpotterResult> iterator = tmpResult
 						    .listIterator();
 				    // System.out.println(tmpResult.size());
 				    while (iterator.hasNext()) {
@@ -170,7 +181,7 @@ namespace AudioAligner.Classes.AudioAligner
                         Console.WriteLine(nextResult);
 
 					    phraseSpotterResult.add(nextResult);
-				    }
+				    }*/
 			    } catch (Exception e) {
 				    /*System.out
 						    .println("An unknown exception occured in phrase Spotter."

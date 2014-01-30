@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AudioAligner.Classes.Util
@@ -61,15 +63,20 @@ namespace AudioAligner.Classes.Util
 	    public void process(){
 		    rand = new Random();
 		    textToWordList();
-		
+
+            wordsToInsert = new List<string>();
+	        var lines = File.ReadAllLines(pathToWordFile.AbsolutePath);
+	        foreach (var line in lines)
+	        {
+	            wordsToInsert.Add(line);
+	        }
 		    // Load words to inserted from word file
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(
+		    /*BufferedReader reader = new BufferedReader(new InputStreamReader(
 				    pathToWordFile.openStream()));
 		    string line;
-	        wordsToInsert = new List<string>();
-		    while ((line = reader.readLine()) != null) {
+	        while ((line = reader.readLine()) != null) {
 			    wordsToInsert.Add(line);
-		    }
+		    }*/
 		    // Check for compatible word error rates
 		    check_compatible();
 		
@@ -94,7 +101,7 @@ namespace AudioAligner.Classes.Util
 
 	    private void processSubstitution() {
 		    Double numSubs = sr * numWords;
-		    numSubstitutions = numSubs.intValue();
+		    numSubstitutions = (int) numSubs;
 		    int substitutionCount = 0;
 		    int currIndex = 0;
 		    Iterator<Word> iter = words.listIterator(0);
@@ -103,15 +110,14 @@ namespace AudioAligner.Classes.Util
 		    // substitutioniterate over the list and substitute word at random
 		    // locations with another one.
 		    while (substitutionCount < numSubstitutions) {
-			    if (currIndex < words.size()) {
+			    if (currIndex < words.Count) {
 				    double random = rand.nextGaussian();
 				    if (random <= sr && random >= -sr && 
-						    words.get(currIndex).getFlag().compareTo("")== 0) {
+						    words[currIndex].getFlag().CompareTo("")== 0) {
 					    // Substitute a word here
-					    Word currWord = words.get(currIndex);
-					    words.get(currIndex).substitute();					
-					    string wordToInsert= wordsToInsert.get(rand
-							    .nextInt(wordsToInsert.size()));
+					    Word currWord = words[currIndex];
+					    words[currIndex].substitute();					
+					    string wordToInsert= wordsToInsert[rand.Next(wordsToInsert.Count)];
 					    Word word = new Word(wordToInsert,currWord.getStartTime() , 
 							    currWord.getEndTime(), 0.01);
 					    word.substituteWord();
@@ -136,7 +142,7 @@ namespace AudioAligner.Classes.Util
 	     */
 	    private void processDeletions() {
 		    Double numDel = dr * numWords;
-		    numDeletions = numDel.intValue();
+		    numDeletions = (int)numDel;
 		    int deletionCount = 0;
 		    int currIndex = 0;
 		    Iterator<Word> iter = words.listIterator(0);
@@ -144,14 +150,14 @@ namespace AudioAligner.Classes.Util
 		    // deletions
 		    // iterate over the list and delete word from random locations.
 		    while (deletionCount < numDeletions) {
-			    if (currIndex < words.size()) {
+			    if (currIndex < words.Count) {
 				    double random = rand.nextGaussian();
 				    if (random <= dr && random >= -dr &&
-						    words.get(currIndex).getFlag().compareTo("")== 0) {
+						    words[currIndex].getFlag().CompareTo("")== 0) {
 					
 					    // Delete word from here
 					
-					    words.get(currIndex).delete();
+					    words[currIndex].delete();
 					    iter = words.listIterator(currIndex);
 					    deletionCount++;
 					    currIndex--;
@@ -172,7 +178,7 @@ namespace AudioAligner.Classes.Util
 	     */
 	    private void processInsertions() {
 		    Double numIns = ir * numWords;
-		    numInsertions = numIns.intValue();
+		    numInsertions = (int)numIns;
 		    int insertionCount = 0;
 		    int currIndex = 0;
 		    Iterator<Word> iter = words.iterator();
@@ -180,13 +186,12 @@ namespace AudioAligner.Classes.Util
 		    // insertions iterate over the list and insert random word at random
 		    // locations.
 		    while (insertionCount < numInsertions) {
-			    if (currIndex < words.size()) {
+			    if (currIndex < words.Count) {
 				    double random = rand.nextGaussian();
 				    if (random <= ir && random >= -ir &&
-						    words.get(currIndex).getFlag().compareTo("")==0) {
+						    words[currIndex].getFlag().CompareTo("")==0) {
 					    // Insert a new word here
-					    string wordToInsert= wordsToInsert.get(rand
-							    .nextInt(wordsToInsert.size()));
+					    string wordToInsert= wordsToInsert[rand.Next(wordsToInsert.Count)];
 					    Word word = new Word(wordToInsert);
 					    word.insert();
 					    words.add(currIndex, word );

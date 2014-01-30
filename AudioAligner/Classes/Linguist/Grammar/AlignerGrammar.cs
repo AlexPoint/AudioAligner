@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using com.sun.corba.se.impl.encoding;
 using edu.cmu.sphinx.linguist.language.grammar;
 using edu.cmu.sphinx.util;
 using ikvm.extensions;
@@ -48,13 +49,13 @@ namespace AudioAligner.Classes.Linguist.Grammar
 		    string word;
 		    try {
 			    ExtendedStreamTokenizer tok = new ExtendedStreamTokenizer(
-					    new stringReader(text), true);
+					    new java.io.StringReader(text), true);
 
-			    tokens.clear();
+			    tokens.Clear();
 			    while (!tok.isEOF()) {
-				    while ((word = tok.getstring()) != null) {
+				    while ((word = tok.getString()) != null) {
 					    word = word.toLowerCase();
-					    tokens.add(word);
+					    tokens.Add(word);
 				    }
 			    }
 		    } catch (Exception e) {
