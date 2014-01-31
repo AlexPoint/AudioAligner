@@ -187,15 +187,15 @@ namespace AudioAligner.Classes.Linguist.Grammar
 
 	    private void createBaseGrammar(List<GrammarNode> wordGrammarNodes,
 			    GrammarNode branchNode, GrammarNode finalNode) {
-            branchNode.add(wordGrammarNodes[0], logMath.getLogOne());
+            branchNode.add(wordGrammarNodes[0], LogMath.getLogOne());
 		    for (var i = 0; i < wordGrammarNodes.Count - 1; i++)
 	        {
 	            var currNode = wordGrammarNodes[i];
 	            var nextNode = wordGrammarNodes[i + 1];
-                currNode.add(nextNode, logMath.getLogOne());
+                currNode.add(nextNode, LogMath.getLogOne());
 	        }
 	        var lastNode = wordGrammarNodes[wordGrammarNodes.Count - 1];
-            lastNode.add(finalNode, logMath.getLogOne());
+            lastNode.add(finalNode, LogMath.getLogOne());
             /*GrammarNode currNode = branchNode;
                 * ListIterator<GrammarNode> iter = wordGrammarNodes.listIterator();
             while (iter.hasNext()) {

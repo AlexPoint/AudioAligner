@@ -24,7 +24,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
     {
         public readonly AcousticModel model;
         private readonly float logPhoneInsertionProbability;
-        public readonly float logOne = LogMath.getLogOne();
+        public static readonly float logOne = LogMath.getLogOne();
         public SentenceHMMState inititalState;
 
 

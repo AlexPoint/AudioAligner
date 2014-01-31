@@ -111,7 +111,9 @@ namespace AudioAligner.Classes.Util
 		    // locations with another one.
 		    while (substitutionCount < numSubstitutions) {
 			    if (currIndex < words.Count) {
-				    double random = rand.nextGaussian();
+                    // TODO: use Gaussian variable?
+				    //double random = rand.nextGaussian();
+			        double random = rand.NextDouble();
 				    if (random <= sr && random >= -sr && 
 						    words[currIndex].getFlag().CompareTo("")== 0) {
 					    // Substitute a word here
@@ -151,7 +153,9 @@ namespace AudioAligner.Classes.Util
 		    // iterate over the list and delete word from random locations.
 		    while (deletionCount < numDeletions) {
 			    if (currIndex < words.Count) {
-				    double random = rand.nextGaussian();
+                    // TODO: use Gaussian variable here?
+				    //double random = rand.nextGaussian();
+			        double random = rand.NextDouble();
 				    if (random <= dr && random >= -dr &&
 						    words[currIndex].getFlag().CompareTo("")== 0) {
 					

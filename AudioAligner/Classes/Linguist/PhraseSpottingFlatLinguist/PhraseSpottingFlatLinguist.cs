@@ -249,14 +249,14 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 
 		    // get the rest of the configuration data
 		    logWordInsertionProbability = logMath.linearToLog(ps
-				    .getDouble(PROP_WORD_INSERTION_PROBABILITY));
+                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_WORD_INSERTION_PROBABILITY));
 		    logSilenceInsertionProbability = logMath.linearToLog(ps
-				    .getDouble(PROP_SILENCE_INSERTION_PROBABILITY));
+                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_SILENCE_INSERTION_PROBABILITY));
 		    logFillerInsertionProbability = logMath.linearToLog(ps
-				    .getDouble(PROP_FILLER_INSERTION_PROBABILITY));
+                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_FILLER_INSERTION_PROBABILITY));
 		    logUnitInsertionProbability = logMath.linearToLog(ps
-				    .getDouble(PROP_UNIT_INSERTION_PROBABILITY));
-		    languageWeight = ps.getFloat(Linguist.PROP_LANGUAGE_WEIGHT);
+                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_UNIT_INSERTION_PROBABILITY));
+            languageWeight = ps.getFloat(edu.cmu.sphinx.linguist.Linguist.PROP_LANGUAGE_WEIGHT);
 		    dumpGStates = ps.getBoolean(PROP_DUMP_GSTATES);
 		    showCompilationProgress = ps.getBoolean(PROP_SHOW_COMPILATION_PROGRESS);
 		    spreadWordProbabilitiesAcrossPronunciations = ps
@@ -400,7 +400,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    protected List<SentenceHMMState> compileGrammar(){
 		    initialGrammarState = grammar.getInitialNode();
 
-		    nodeStateMap = new Dictionary<GrammarNode, FlatLinguist.GState>();
+		    nodeStateMap = new Dictionary<GrammarNode, GState>();
 		    arcPool = new Cache<SentenceHMMStateArc>();
 
 		    List<GState> gstateList = new List<GState>();
@@ -619,7 +619,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * node. The GState is used to collect the entry and exit points for the
 	     * grammar node and for connecting up the grammar nodes to each other.
 	     */
-	    protected class GState {
+	    public class GState {
 
 		    private readonly Dictionary<ContextPair, List<SearchState>> entryPoints = new Dictionary<ContextPair, List<SearchState>>();
 		    private readonly Dictionary<ContextPair, List<SearchState>> exitPoints = new Dictionary<ContextPair, List<SearchState>>();
@@ -639,7 +639,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param node
 		     *            the grammar node
 		     */
-		    protected GState(GrammarNode node) {
+		    public GState(GrammarNode node) {
 			    this.node = node;
 			    nodeStateMap.Add(node, this);
 		    }

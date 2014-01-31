@@ -54,8 +54,8 @@ namespace AudioAligner.Classes.Linguist.Grammar
 		    initialNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
 		    finalNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
 		    GrammarNode lastNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
-		    initialNode.add(lastNode, logMath.getLogOne());
-		    lastNode.add(initialNode, logMath.getLogOne());
+		    initialNode.add(lastNode, LogMath.getLogOne());
+		    lastNode.add(initialNode, LogMath.getLogOne());
 		    GrammarNode lastWordGrammarNode = initialNode;
             /*Iterator<string> iter = tokens.iterator();
 		    while(iter.hasNext()){
@@ -71,10 +71,10 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	        foreach (var token in tokens)
 	        {
                 GrammarNode currNode = createGrammarNode(token);
-                lastWordGrammarNode.add(currNode, logMath.getLogOne());
+                lastWordGrammarNode.add(currNode, LogMath.getLogOne());
                 lastWordGrammarNode = currNode;
 	        }
-		    lastWordGrammarNode.add(lastNode, logMath.getLogOne());
+		    lastWordGrammarNode.add(lastNode, LogMath.getLogOne());
 		    lastNode.add(finalNode, logMath.linearToLog(0.0001));
 		    finalNode.setFinalNode(true);
 		    return initialNode;		
