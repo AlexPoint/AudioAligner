@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioAligner.Classes.Linguist.Grammar;
+using AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist;
 using edu.cmu.sphinx.frontend.util;
 using edu.cmu.sphinx.recognizer;
 using edu.cmu.sphinx.util.props;
+using java.net;
 using java.util;
 
 namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 {
-    class SimplePhraseSpotter : PhraseSpotter.PraseSpotter
+    class SimplePhraseSpotter : PraseSpotter
     {
         private List<PhraseSpotterResult> result;
 	    private List<string> phrase = null;
@@ -39,17 +42,18 @@ namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 	    public override void setPhrase(string phraseText) {
 		    this.phraseText = phraseText;
 		    this.phrase = new List<string>();
-		    stringTokenizer st = new stringTokenizer(phraseText);
+		    StringTokenizer st = new StringTokenizer(phraseText);
 		    while (st.hasMoreTokens()) {
 			    phrase.Add(st.nextToken());
 		    }
 		    grammar.setText(phraseText);
-		    this.isPhraseSet = true;
+		    this.isPhraseSetP = true;
 	    }
 
 	    //@Override
 	    public override void setAudioDataSource(Uri audioFile) {
-		    dataSource.setAudioFile(audioFile, null);
+            java.net.URL url = new URL(audioFile.AbsolutePath);
+		    dataSource.setAudioFile(url, null);
 	    }
 
 	    public void setAudioDataSource(string audioFile){
@@ -61,7 +65,7 @@ namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 		    if (!isPhraseSetP) {
 			    throw new Exception("Phrase to search can't be null");
 		    }
-		    result = new LinkedList<PhraseSpotterResult>();
+		    result = new List<PhraseSpotterResult>();
 		    recognizer.allocate();
 	    }
 
@@ -95,7 +99,7 @@ namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 		    // used to generate this result in the first place. Guess that's why I
 		    // call this a simple Phrase Spotter
 
-		    stringTokenizer st = new stringTokenizer(timedResult);
+		    StringTokenizer st = new StringTokenizer(timedResult);
 		    //System.out.println(timedResult);
 		    timedData = new List<TimedData>();
 
@@ -117,16 +121,18 @@ namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 		    // Now since we have eliminated <unk> from the result in TimedData
 		    // the list should look like Phrase - Phrase - Phrase ....
 		    // If this is not the case, raise error.
-		    Iterator<TimedData> resultIter = timedData.iterator();
-		    while (resultIter.hasNext()) {
-			    Iterator<string> phraseIter = phrase.iterator();
+		    /*Iterator<TimedData> resultIter = timedData.iterator();
+		    while (resultIter.hasNext()) {*/
+	        foreach (var data in timedData){
 			    bool startOfPhrase = true;
 			    float startTime = 0;
-			    float endTime = 0;
-			    while (phraseIter.hasNext()) {
-				    string word = phraseIter.next();
-				    if (resultIter.hasNext()) {
-					    TimedData data = resultIter.next();
+                float endTime = 0;
+                /*Iterator<string> phraseIter = phrase.iterator();
+			    while (phraseIter.hasNext()) {*/
+	            foreach (var word in phrase){
+				    //string word = phraseIter.next();
+				    /*if (resultIter.hasNext()) {*/
+					    //TimedData data = resultIter.next();
 					    // if phrase is begining store the start time
 					    if (startOfPhrase) {
 						    startTime = data.getStartTime();
@@ -139,11 +145,12 @@ namespace AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter
 								    + word + "," + data.getText() + ")");
 					    }
 					    endTime = data.getEndTime();
-				    } else {
+                    // we're necessarily above
+				    /*} else {
 					    grammar.getInitialNode().dumpDot("./PSGraph.dot");
 					    throw new Exception(
 							    "The recognizer for phrase spotting didn't exit gracefully.");
-				    }
+				    }*/
 			    }
 			    result.Add(new PhraseSpotterResult(phraseText, startTime, endTime));
 		    }

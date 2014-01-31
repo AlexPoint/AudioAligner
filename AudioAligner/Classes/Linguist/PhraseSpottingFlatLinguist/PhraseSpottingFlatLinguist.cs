@@ -11,6 +11,7 @@ using edu.cmu.sphinx.linguist.flat;
 using edu.cmu.sphinx.linguist.language.grammar;
 using edu.cmu.sphinx.util;
 using edu.cmu.sphinx.util.props;
+using Grammar = edu.cmu.sphinx.linguist.language.grammar.Grammar;
 
 namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 {
@@ -114,7 +115,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    //@S4Boolean(defaultValue = false)
 	    public const string PROP_SPREAD_WORD_PROBABILITIES_ACROSS_PRONUNCIATIONS = "spreadWordProbabilitiesAcrossPronunciations";
 
-	    protected const float logOne = LogMath.getLogOne();
+	    protected readonly float logOne = LogMath.getLogOne();
 
 	    // note: some fields are protected to allow to override
 	    // FlatLinguist.compileGrammar()
@@ -123,7 +124,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    // Subcomponents that are configured
 	    // by the property sheet
 	    // -----------------------------------
-	    protected Grammar grammar;
+	    protected edu.cmu.sphinx.linguist.language.grammar.Grammar grammar;
 	    private AcousticModel acousticModel;
 	    private UnitManager unitManager;
 	    protected LogMath logMath;
@@ -155,17 +156,17 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    protected StatisticsVariable totalStates;
 	    protected StatisticsVariable totalArcs;
 	    protected StatisticsVariable actualArcs;
-	    private transient int totalStateCounter;
+	    private /*transient*/ int totalStateCounter;
 	    private const bool tracing = false;
 
 	    // ------------------------------------
 	    // Data used for building and maintaining
 	    // the search graph
 	    // -------------------------------------
-	    private transient Collection<SentenceHMMState> stateSet;
+	    private /*transient*/ List<SentenceHMMState> stateSet;
 	    private string name;
 	    protected Dictionary<GrammarNode, FlatLinguist.GState> nodeStateMap;
-	    protected Cache<SentenceHMMStateArc> arcPool;
+	    protected edu.cmu.sphinx.util.Cache<SentenceHMMStateArc> arcPool;
 	    protected GrammarNode initialGrammarState;
 
 	    protected SearchGraph searchGraph;
@@ -181,7 +182,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    }
 
 	    public PhraseSpottingFlatLinguist(AcousticModel acousticModel, LogMath logMath,
-			    Grammar grammar, UnitManager unitManager,
+			    edu.cmu.sphinx.linguist.language.grammar.Grammar grammar, UnitManager unitManager,
 			    double wordInsertionProbability,
 			    double silenceInsertionProbability,
 			    double fillerInsertionProbability, double unitInsertionProbability,
@@ -212,7 +213,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    this.showCompilationProgress = showCompilationProgress;
 		    this.spreadWordProbabilitiesAcrossPronunciations = spreadWordProbabilitiesAcrossPronunciations;
 
-		    this.AddOutOfGrammarBranch = addOutOfGrammarBranch;
+		    this.addOutOfGrammarBranch = addOutOfGrammarBranch;
 
 		    if (addOutOfGrammarBranch) {
 			    this.logOutOfGrammarBranchProbability = logMath
@@ -241,7 +242,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    // hookup to all of the components
 		    setupAcousticModel(ps);
 		    logMath = (LogMath) ps.getComponent(PROP_LOG_MATH);
-		    grammar = (Grammar) ps.getComponent(PROP_GRAMMAR);
+		    grammar = (edu.cmu.sphinx.linguist.language.grammar.Grammar) ps.getComponent(PROP_GRAMMAR);
 		    unitManager = (UnitManager) ps.getComponent(PROP_UNIT_MANAGER);
 
 		    // get the rest of the configuration data
@@ -345,9 +346,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    if (grammarHasChanged()) {
 			    try {
 				    stateSet = compileGrammar();
-			    } catch (IOException e) {
+			    } catch (Exception e) {
 				    // TODO Auto-generated catch block
-				    e.printStackTrace();
+				    Console.WriteLine(e);
 			    }
 			    totalStates.value = stateSet.Count();
 		    }
@@ -411,7 +412,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    GrammarNode branchNode = new GrammarNode(0, new Word[0][0]);
 				    GrammarArc[] successors = grammarNode.getSuccessors();
 				    foreach (GrammarArc arc in successors) {
-					    branchNode.Add(arc.getGrammarNode(), arc.getProbability());
+					    branchNode.add(arc.getGrammarNode(), arc.getProbability());
 				    }
 
 			    }
@@ -511,7 +512,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    // adding an empty left context to the starting gstate
 		    GrammarNode node = initialNode;
 		    GState gstate = getGState(node);
-		    gstate.AddLeftContext(UnitContext.SILENCE);
+		    gstate.addLeftContext(UnitContext.SILENCE);
 	    }
 
 	    /**
@@ -565,7 +566,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * @return the grammar state associated with the node
 	     */
 	    protected GState getGState(GrammarNode node) {
-		    return nodeStateMap.get(node);
+		    return nodeStateMap[node];
 	    }
 
 	    /**
@@ -686,7 +687,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    private UnitContext getStartingContext(Pronunciation pronunciation) {
 			    int maxSize = getRightContextSize();
 			    Unit[] units = pronunciation.getUnits();
-			    Unit[] context = units.Length > maxSize ? Arrays.copyOf(units, maxSize) : units;
+			    Unit[] context = units.Length > maxSize ? /*Arrays.copyOf(units, maxSize)*/units.Take(maxSize).ToArray() : units;
 			    return UnitContext.get(context);
 		    }
 
@@ -704,8 +705,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    foreach (Pronunciation pron in prons) {
 					    Unit[] units = pron.getUnits();
 					    int size = units.Length;
-					    Unit[] context = size > maxSize ? Arrays.copyOfRange(units,
-							    size - maxSize, size) : units;
+					    Unit[] context = size > maxSize ? units.Skip(size - maxSize).Take(maxSize).ToArray()/* Arrays.copyOfRange(units,
+							    size - maxSize, size)*/ : units;
 					    endingContexts.Add(UnitContext.get(context));
 				    }
 			    }
@@ -763,7 +764,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 			    }
 			    foreach (GrammarArc arc in getSuccessors()) {
 				    GState gstate = getGState(arc.getGrammarNode());
-				    gstate.AddLeftContext(leftContext);
+				    gstate.addLeftContext(leftContext);
 
 				    // if our successor state is empty, also push our
 				    // ending context into the empty nodes successors
@@ -1496,16 +1497,16 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * Dumps the details for a gstate
 		     */
 		    void dumpDetails() {
-			    dumpCollection(" entryPoints", entryPoints.keySet());
+			    dumpCollection(" entryPoints", entryPoints.Keys);
 			    dumpCollection(" entryPoints states", entryPoints.Values);
-			    dumpCollection(" exitPoints", exitPoints.keySet());
+			    dumpCollection(" exitPoints", exitPoints.Keys);
 			    dumpCollection(" exitPoints states", exitPoints.Values);
 			    dumpNextNodes();
 			    dumpExitPoints(exitPoints.Values);
 			    dumpCollection(" startingContexts", getStartingContexts());
 			    dumpCollection(" branchingInFrom", leftContexts);
 			    dumpCollection(" branchingOutTo", rightContexts);
-			    dumpCollection(" existingStates", existingStates.keySet());
+			    dumpCollection(" existingStates", existingStates.Keys);
 		    }
 
 		    /**
@@ -1513,7 +1514,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     */
 		    private void dumpNextNodes() {
 			    Console.WriteLine("     Next Grammar Nodes: ");
-			    for (GrammarArc arc : node.getSuccessors()) {
+			    foreach (GrammarArc arc in node.getSuccessors()) {
 				    Console.WriteLine("          " + arc.getGrammarNode());
 			    }
 		    }
@@ -1524,11 +1525,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param eps
 		     *            the collection of exit points
 		     */
-		    private void dumpExitPoints(Collection<List<SearchState>> eps) {
-			    for (List<SearchState> epList : eps) {
-				    for (SearchState state : epList) {
+		    private void dumpExitPoints(List<List<SearchState>> eps) {
+			    foreach (List<SearchState> epList in eps) {
+				    foreach (SearchState state in epList) {
 					    Console.WriteLine("      Arcs from: " + state);
-					    for (SearchStateArc arc : state.getSuccessors()) {
+					    foreach (SearchStateArc arc in state.getSuccessors()) {
 						    Console.WriteLine("          " + arc.getState());
 					    }
 				    }
@@ -1543,9 +1544,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param collection
 		     *            the collection to dump
 		     */
-		    private void dumpCollection(String name, Collection<?> collection) {
+		    private void dumpCollection(String name, List<object> collection) {
 			    Console.WriteLine("     " + name);
-			    for (Object obj : collection) {
+			    foreach (Object obj in collection) {
 				    Console.WriteLine("         " + obj);
 			    }
 		    }
@@ -1555,8 +1556,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * 
 		     * @return the string representation of the object
 		     */
-		    @Override
-		    public String toString() {
+		    //@Override
+		    public override String ToString() {
 			    if (node.isEmpty()) {
 				    return "GState " + node + "(empty)";
 			    } else {
@@ -1578,22 +1579,23 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    }
     }
 
-    /**
+/**
      * A class that represents a set of units used as a context
      */
     class UnitContext {
 
-	    private const Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
-	    private final Unit[] context;
+	    private readonly edu.cmu.sphinx.util.Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
+	    private readonly Unit[] context;
 	    private int hashCode = 12;
-	    public const UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
-	    public const UnitContext SILENCE = new UnitContext(
+	    public readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
+	    public readonly UnitContext SILENCE = new UnitContext(
 			    new Unit[] { UnitManager.SILENCE });
 
-	    static {
-		    unitContextCache.cache(EMPTY);
-		    unitContextCache.cache(SILENCE);
-	    }
+        /*static {*/
+            // TODO: activate code below
+		    /*unitContextCache.cache(EMPTY);
+		    unitContextCache.cache(SILENCE);*/
+	    /*}*/
 
 	    /**
 	     * Creates a UnitContext for the given context. This constructor is not
@@ -1606,7 +1608,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    this.context = context;
 		    hashCode = 12;
 		    for (int i = 0; i < context.Length; i++) {
-			    hashCode += context[i].getName().hashCode() * ((i + 1) * 34);
+			    hashCode += context[i].getName().GetHashCode() * ((i + 1) * 34);
 		    }
 	    }
 
@@ -1620,7 +1622,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     */
 	    static UnitContext get(Unit[] units) {
 		    UnitContext newUC = new UnitContext(units);
-		    UnitContext cachedUC = unitContextCache.cache(newUC);
+		    UnitContext cachedUC = (UnitContext) unitContextCache.cache(newUC);
 		    return cachedUC == null ? newUC : cachedUC;
 	    }
 
@@ -1640,11 +1642,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     *            the object to compare to
 	     * @return <code>true</code> if the objects are equal
 	     */
-	    @Override
-	    public bool equals(Object o) {
+	    //@Override
+	    public override bool Equals(Object o) {
 		    if (this == o) {
 			    return true;
-		    } else if (o instanceof UnitContext) {
+		    } else if (o is UnitContext) {
 			    UnitContext other = (UnitContext) o;
 			    if (this.context.Length != other.context.Length) {
 				    return false;
@@ -1666,8 +1668,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * 
 	     * @return the hashCode
 	     */
-	    @Override
-	    public int hashCode() {
+	    //@Override
+	    public override int GetHashCode() {
 		    return hashCode;
 	    }
 
@@ -1685,8 +1687,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * 
 	     * @return a string representation
 	     */
-	    @Override
-	    public String toString() {
+	    //@Override
+	    public override String ToString() {
 		    return LeftRightContext.getContextName(context);
 	    }
     }
@@ -1698,9 +1700,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
     class ContextPair {
 
 	    const Cache<ContextPair> contextPairCache = new Cache<ContextPair>();
-	    private final UnitContext left;
-	    private final UnitContext right;
-	    private final int hashCode;
+	    private readonly UnitContext left;
+	    private readonly UnitContext right;
+	    private readonly int hashCode;
 
 	    /**
 	     * Creates a UnitContext for the given context. This constructor is not
@@ -1714,7 +1716,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    private ContextPair(UnitContext left, UnitContext right) {
 		    this.left = left;
 		    this.right = right;
-		    hashCode = 99 + left.hashCode() * 113 + right.hashCode();
+		    hashCode = 99 + left.GetHashCode() * 113 + right.GetHashCode();
 	    }
 
 	    /**
@@ -1730,7 +1732,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     */
 	    static ContextPair get(UnitContext left, UnitContext right) {
 		    ContextPair newCP = new ContextPair(left, right);
-		    ContextPair cachedCP = contextPairCache.cache(newCP);
+		    ContextPair cachedCP = (ContextPair) contextPairCache.cache(newCP);
 		    return cachedCP == null ? newCP : cachedCP;
 	    }
 
@@ -1741,11 +1743,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     *            the object to compare to
 	     * @return <code>true</code> if the objects are equal return;
 	     */
-	    @Override
-	    public bool equals(Object o) {
+	    //@Override
+	    public override bool Equals(Object o) {
 		    if (this == o) {
 			    return true;
-		    } else if (o instanceof ContextPair) {
+		    } else if (o is ContextPair) {
 			    ContextPair other = (ContextPair) o;
 			    return this.left.Equals(other.left)
 					    && this.right.Equals(other.right);
@@ -1759,16 +1761,16 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * 
 	     * @return the hashCode
 	     */
-	    @Override
-	    public int hashCode() {
+	    //@Override
+	    public override int GetHashCode() {
 		    return hashCode;
 	    }
 
 	    /**
 	     * Returns a string representation of the object
 	     */
-	    @Override
-	    public String toString() {
+	    //@Override
+	    public override string ToString() {
 		    return "CP left: " + left + " right: " + right;
 	    }
 

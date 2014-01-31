@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using AudioAligner.Classes.Decoder.Search;
 using AudioAligner.Classes.Linguist.Grammar;
 using AudioAligner.Classes.PhraseSpotter;
+using AudioAligner.Classes.PhraseSpotter.SimplePhraseSpotter;
+using AudioAligner.Classes.Util;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend.util;
 using edu.cmu.sphinx.recognizer;
@@ -205,7 +207,7 @@ namespace AudioAligner.Classes.AudioAligner
 		    SimplePhraseSpotter phraseSpotter = new SimplePhraseSpotter(psConfig);
 		    phraseSpotter.setAudioDataSource(audioFile);
 		    phraseSpotter.setPhrase(phrase);
-		    long initTime = System.currentTimeMillis();
+		    //long initTime = System.currentTimeMillis();
 		    phraseSpotter.startSpotting();
 		    return phraseSpotter.getTimedResult();
 	    }
@@ -238,12 +240,12 @@ namespace AudioAligner.Classes.AudioAligner
 		    while ((line = txtReader.readLine()) != null) {
 			    finalText += " " + line;
 		    }
-		    stringCustomise sc = new stringCustomise();
+		    StringCustomize sc = new StringCustomize();
 		    return sc.customise(finalText);
 	    }
 
 	    public void generateError(float wer){
-		    stringErrorGenerator seg = new stringErrorGenerator(wer,
+		    StringErrorGenerator seg = new StringErrorGenerator(wer,
 				    txtInTranscription);
 		    seg.process();
 		    string newText = seg.getTranscription();
@@ -251,7 +253,7 @@ namespace AudioAligner.Classes.AudioAligner
 	    }
 
 	    public void generateError(float ir, float dr, float sr){
-		    stringErrorGenerator seg = new stringErrorGenerator(ir, dr, sr,
+		    StringErrorGenerator seg = new StringErrorGenerator(ir, dr, sr,
 				    txtInTranscription);
 		    seg.process();
 		    string newText = seg.getTranscription();

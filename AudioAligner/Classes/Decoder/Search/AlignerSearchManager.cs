@@ -105,7 +105,7 @@ namespace AudioAligner.Classes.Decoder.Search
 	    private List<String> phraseWordList;
 	    private bool phraseDetected;
 	    protected List<PhraseSpotterResult> spotterResult;
-	    protected TreeSet<float> spotterTimes = new TreeSet<float>();
+	    protected SortedSet<float> spotterTimes = new SortedSet<float>();
 	    private float sampleRate = 1.0f;
 	    private float timeThreshold = 0.04f;
 	    private int logCounter = 1;

@@ -121,9 +121,15 @@
   <ItemGroup>
     <Compile Include="Classes\AudioAligner\Aligner.cs" />
     <Compile Include="Classes\AudioAligner\IAudioAligner.cs" />
+    <Compile Include="Classes\Decoder\Search\AlignerSearchManager.cs" />
     <Compile Include="Classes\Linguist\Grammar\AlignerGrammar.cs" />
+    <Compile Include="Classes\Linguist\Grammar\NoSkipGrammar.cs" />
+    <Compile Include="Classes\Linguist\PhraseSpottingFlatLinguist\PhoneLoopCI.cs" />
+    <Compile Include="Classes\Linguist\PhraseSpottingFlatLinguist\PhraseSpottingFlatLinguist.cs" />
     <Compile Include="Classes\PhraseSpotter\PhraseSpotterResult.cs" />
     <Compile Include="Classes\PhraseSpotter\PraseSpotter.cs" />
+    <Compile Include="Classes\PhraseSpotter\SimplePhraseSpotter\SimplePhraseSpotter.cs" />
+    <Compile Include="Classes\Util\StringCustomize.cs" />
     <Compile Include="Classes\Util\StringErrorGenerator.cs" />
     <Compile Include="Classes\Util\Word.cs" />
     <Compile Include="Program.cs" />
