@@ -194,7 +194,7 @@ namespace AudioAligner.Classes.Util
 					    string wordToInsert= wordsToInsert[rand.Next(wordsToInsert.Count)];
 					    Word word = new Word(wordToInsert);
 					    word.insert();
-					    words.add(currIndex, word );
+					    words.Add(currIndex, word );
 					    iter = words.listIterator(currIndex);
 					    insertionCount = insertionCount + 1;
 				    }

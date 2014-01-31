@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AudioAligner.Classes.Util
 {
-    class Word : IComparable<Word>
+    public class Word : IComparable<Word>
     {
         private  string word;
 	    private double startTime;
@@ -85,11 +85,11 @@ namespace AudioAligner.Classes.Util
 		    }
 	    }
 	
-	    double getStartTime() {
+	    public double getStartTime() {
 		    return startTime;
 	    }
 	
-	    double getEndTime() {
+	    public double getEndTime() {
 		    return endTime;
 	    }
 	

@@ -107,6 +107,9 @@
     <Reference Include="IKVM.Runtime.JNI">
       <HintPath>..\packages\IKVM.7.2.4630.5\lib\IKVM.Runtime.JNI.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="sphinx4">
       <HintPath>libs\sphinx4.dll</HintPath>
     </Reference>
@@ -129,6 +132,7 @@
     <Compile Include="Classes\PhraseSpotter\PhraseSpotterResult.cs" />
     <Compile Include="Classes\PhraseSpotter\PraseSpotter.cs" />
     <Compile Include="Classes\PhraseSpotter\SimplePhraseSpotter\SimplePhraseSpotter.cs" />
+    <Compile Include="Classes\Util\Cache.cs" />
     <Compile Include="Classes\Util\StringCustomize.cs" />
     <Compile Include="Classes\Util\StringErrorGenerator.cs" />
     <Compile Include="Classes\Util\Word.cs" />

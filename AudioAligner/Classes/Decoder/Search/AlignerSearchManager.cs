@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioAligner.Classes.PhraseSpotter;
-using com.sun.org.apache.regexp.@internal;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend;
 using edu.cmu.sphinx.linguist;
@@ -13,12 +12,9 @@ using edu.cmu.sphinx.linguist.dictionary;
 using edu.cmu.sphinx.result;
 using edu.cmu.sphinx.util;
 using edu.cmu.sphinx.util.props;
-using java.sql;
 using log4net;
-using sun.tools.tree;
 using edu.cmu.sphinx.decoder.pruner;
 using edu.cmu.sphinx.decoder.scorer;
-using Linguist = edu.cmu.sphinx.linguist.Linguist;
 
 namespace AudioAligner.Classes.Decoder.Search
 {
@@ -207,7 +203,7 @@ namespace AudioAligner.Classes.Decoder.Search
 	     * recognize
 	     */
 	    //@Override
-	    public void startRecognition() {
+	    public override void startRecognition() {
 		    logger.Info("starting recognition");
 		
 		    //System.out.println("Relative Beam Width: " + logRelativeWordBeamWidth);
@@ -216,7 +212,8 @@ namespace AudioAligner.Classes.Decoder.Search
 		    scorer.startRecognition();
 		    localStart();
 		    if (startTime == 0.0) {
-			    startTime = System.currentTimeMillis();
+			    //startTime = System.currentTimeMillis();
+		        startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
 		    }
 	    }
 

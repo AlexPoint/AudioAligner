@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioAligner.Classes.Util;
 using com.sun.org.apache.regexp.@internal;
 using edu.cmu.sphinx.linguist;
 using edu.cmu.sphinx.linguist.acoustic;
@@ -12,6 +13,7 @@ using edu.cmu.sphinx.linguist.language.grammar;
 using edu.cmu.sphinx.util;
 using edu.cmu.sphinx.util.props;
 using Grammar = edu.cmu.sphinx.linguist.language.grammar.Grammar;
+using Word = edu.cmu.sphinx.linguist.dictionary.Word;
 
 namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 {
@@ -165,8 +167,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    // -------------------------------------
 	    private /*transient*/ List<SentenceHMMState> stateSet;
 	    private string name;
-	    protected Dictionary<GrammarNode, FlatLinguist.GState> nodeStateMap;
-	    protected edu.cmu.sphinx.util.Cache<SentenceHMMStateArc> arcPool;
+	    protected Dictionary<GrammarNode, GState> nodeStateMap;
+	    protected Cache<SentenceHMMStateArc> arcPool;
 	    protected GrammarNode initialGrammarState;
 
 	    protected SearchGraph searchGraph;
@@ -409,7 +411,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    // of word state
 		    foreach (GrammarNode grammarNode in grammar.getGrammarNodes()) {
 			    if (!grammarNode.isEmpty()) {
-				    GrammarNode branchNode = new GrammarNode(0, new Word[0][0]);
+				    GrammarNode branchNode = new GrammarNode(0, new Word[0][]);
 				    GrammarArc[] successors = grammarNode.getSuccessors();
 				    foreach (GrammarArc arc in successors) {
 					    branchNode.add(arc.getGrammarNode(), arc.getProbability());
@@ -866,7 +868,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 					    ContextPair cp = entry.Key;
 					    List<SearchState> epList = entry.Value;
 					    SentenceHMMState bs = new BranchState(cp.getLeftContext()
-							    .toString(), cp.getRightContext().toString(), node
+							    .ToString(), cp.getRightContext().ToString(), node
 							    .getID());
 					    epList.Add(bs);
 					    addExitPoint(cp, bs);
@@ -887,7 +889,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 					    ContextPair cp = entry.Key;
 					    List<SearchState> epList = entry.Value;
 					    SentenceHMMState bs = new BranchState(cp.getLeftContext()
-							    .toString(), cp.getRightContext().toString(), node
+							    .ToString(), cp.getRightContext().ToString(), node
 							    .getID());
 					    epList.Add(bs);
 					    addExitPoint(cp, bs);
@@ -1582,9 +1584,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 /**
      * A class that represents a set of units used as a context
      */
-    class UnitContext {
+    public class UnitContext {
 
-	    private readonly edu.cmu.sphinx.util.Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
+	    private readonly Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
 	    private readonly Unit[] context;
 	    private int hashCode = 12;
 	    public readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
@@ -1620,7 +1622,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     *            the units of interest
 	     * @return the unit context.
 	     */
-	    static UnitContext get(Unit[] units) {
+	    public static UnitContext get(Unit[] units) {
 		    UnitContext newUC = new UnitContext(units);
 		    UnitContext cachedUC = (UnitContext) unitContextCache.cache(newUC);
 		    return cachedUC == null ? newUC : cachedUC;
@@ -1697,10 +1699,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
      * A context pair hold a left and starting context. It is used as a hash into
      * the set of starting points for a particular gstate
      */
-    class ContextPair {
+    public class ContextPair {
 
-	    const Cache<ContextPair> contextPairCache = new Cache<ContextPair>();
-	    private readonly UnitContext left;
+        private static readonly Cache<ContextPair> contextPairCache = new Cache<ContextPair>();
+        private readonly UnitContext left;
 	    private readonly UnitContext right;
 	    private readonly int hashCode;
 
@@ -1730,7 +1732,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     *            the right context
 	     * @return the unit context.
 	     */
-	    static ContextPair get(UnitContext left, UnitContext right) {
+	    public static ContextPair get(UnitContext left, UnitContext right) {
 		    ContextPair newCP = new ContextPair(left, right);
 		    ContextPair cachedCP = (ContextPair) contextPairCache.cache(newCP);
 		    return cachedCP == null ? newCP : cachedCP;
