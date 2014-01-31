@@ -513,7 +513,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    // guarantees a starting path into the initial node by
 		    // adding an empty left context to the starting gstate
 		    GrammarNode node = initialNode;
-		    GState gstate = getGState(node);
+		    PhraseSpottingFlatLinguist.GState gstate = getGState(node);
 		    gstate.addLeftContext(UnitContext.SILENCE);
 	    }
 
@@ -567,7 +567,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     *            the grammar node
 	     * @return the grammar state associated with the node
 	     */
-	    protected GState getGState(GrammarNode node) {
+	    public GState getGState(GrammarNode node) {
 		    return nodeStateMap[node];
 	    }
 
@@ -783,7 +783,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param context
 		     *            the set of contexts to add
 		     */
-		    private void addLeftContext(List<UnitContext> context) {
+		    public void addLeftContext(List<UnitContext> context) {
 			    leftContexts.UnionWith(context);
 		    }
 
@@ -793,7 +793,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param context
 		     *            the context to add
 		     */
-		    private void addLeftContext(UnitContext context) {
+		    public void addLeftContext(UnitContext context) {
 			    leftContexts.Add(context);
 		    }
 
@@ -1475,7 +1475,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * 
 		     * @throws IOException
 		     */
-		    void dumpInfo(){
+		    public void dumpInfo(){
 			    // BufferedWriter writer = new BufferedWriter(new
 			    // FileWriter("./graph.dot"));
 			    Console.WriteLine(" ==== " + this + " ========");
@@ -1590,7 +1590,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    private readonly Unit[] context;
 	    private int hashCode = 12;
 	    public readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
-	    public readonly UnitContext SILENCE = new UnitContext(
+	    public static readonly UnitContext SILENCE = new UnitContext(
 			    new Unit[] { UnitManager.SILENCE });
 
         /*static {*/
