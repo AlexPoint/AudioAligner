@@ -76,7 +76,7 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	    }
 
 	    //@Override
-	    public void newProperties(PropertySheet ps){
+	    public override void newProperties(PropertySheet ps){
 		    base.newProperties(ps);
 		    logMath = (LogMath) ps.getComponent(PROP_LOG_MATH);
 	    }

@@ -207,7 +207,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 
 
         //@Override
-        public string getName() {
+        public override string getName() {
             return "UnknownWordState";
         }
 
@@ -220,7 +220,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
          *         end of a word
          */
         //@Override
-        public bool isWordStart() {
+        public override bool isWordStart() {
             return true;
         }
     }

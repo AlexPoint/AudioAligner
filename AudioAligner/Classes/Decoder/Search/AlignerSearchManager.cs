@@ -5,16 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioAligner.Classes.PhraseSpotter;
+using AudioAligner.Classes.Util;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend;
 using edu.cmu.sphinx.linguist;
-using edu.cmu.sphinx.linguist.dictionary;
 using edu.cmu.sphinx.result;
 using edu.cmu.sphinx.util;
 using edu.cmu.sphinx.util.props;
 using log4net;
 using edu.cmu.sphinx.decoder.pruner;
 using edu.cmu.sphinx.decoder.scorer;
+using Word = edu.cmu.sphinx.linguist.dictionary.Word;
 
 namespace AudioAligner.Classes.Decoder.Search
 {
@@ -175,10 +176,10 @@ namespace AudioAligner.Classes.Decoder.Search
 	    }
 
 	    //@Override
-	    public void newProperties(PropertySheet ps){
+	    public override void newProperties(PropertySheet ps){
 		    base.newProperties(ps);
 
-		    logger = ps.getLogger();
+		    //logger = ps.getLogger();
 		    name = ps.getInstanceName();
 
 		    logMath = (LogMath) ps.getComponent(PROP_LOG_MATH);
@@ -188,11 +189,11 @@ namespace AudioAligner.Classes.Decoder.Search
 		    scorer = (AcousticScorer) ps.getComponent(PROP_SCORER);
 		    activeListFactory = (ActiveListFactory) ps
 				    .getComponent(PROP_ACTIVE_LIST_FACTORY);
-		    showTokenCountP = ps.getBoolean(PROP_SHOW_TOKEN_COUNT);
+		    showTokenCountP = JavaToCs.ConvertBool(ps.getBoolean(PROP_SHOW_TOKEN_COUNT));
 
 		    double relativeWordBeamWidth = ps.getDouble(PROP_RELATIVE_WORD_BEAM_WIDTH);
 		    growSkipInterval = ps.getInt(PROP_GROW_SKIP_INTERVAL);
-		    wantEntryPruning = ps.getBoolean(PROP_WANT_ENTRY_PRUNING);
+		    wantEntryPruning = JavaToCs.ConvertBool(ps.getBoolean(PROP_WANT_ENTRY_PRUNING));
 		    logRelativeWordBeamWidth = logMath.linearToLog(relativeWordBeamWidth);
 
 		    this.keepAllTokens = true;
@@ -270,7 +271,8 @@ namespace AudioAligner.Classes.Decoder.Search
 	    protected ActiveList undoLastGrowStep() {
 		    ActiveList fixedList = activeList.newInstance();
 
-		    foreach (Token token in activeList) {
+	        var tokens = JavaToCs.GetTokenCollection(activeList);
+		    foreach (Token token in tokens){
 			    Token curToken = token.getPredecessor();
 
 			    // remove the final states that are not the real final ones because
@@ -373,7 +375,8 @@ namespace AudioAligner.Classes.Decoder.Search
 		    threshold = oldActiveList.getBeamThreshold();
 		    wordThreshold = oldActiveList.getBestScore() + logRelativeWordBeamWidth;
 
-		    foreach (Token token in oldActiveList) {
+	        var tokens = JavaToCs.GetTokenCollection(oldActiveList);
+		    foreach (Token token in tokens){
 			    collectSuccessorTokens(token);
 		    }
 		    growTimer.stop();
@@ -652,18 +655,23 @@ namespace AudioAligner.Classes.Decoder.Search
 	    protected void showTokenCount() {
 		    if (logger.IsInfoEnabled) {
 			    HashSet<Token> tokenSet = new HashSet<Token>();
-			    foreach (Token token in activeList) {
-				    while (token != null) {
-					    tokenSet.Add(token);
-					    token = token.getPredecessor();
+		        var tokens = JavaToCs.GetTokenCollection(activeList);
+			    foreach (Token token in tokens)
+			    {
+			        var tok = token;
+				    while (tok != null) {
+					    tokenSet.Add(tok);
+					    tok = tok.getPredecessor();
 				    }
 			    }
 			    logger.Info("Token Lattice size: " + tokenSet.Count);
 			    tokenSet = new HashSet<Token>();
-			    foreach (Token token in resultList) {
-				    while (token != null) {
-					    tokenSet.Add(token);
-					    token = token.getPredecessor();
+			    foreach (Token token in resultList)
+			    {
+			        var tok = token;
+				    while (tok != null) {
+					    tokenSet.Add(tok);
+					    tok = tok.getPredecessor();
 				    }
 			    }
 			    logger.Info("Result Lattice size: " + tokenSet.Count);
@@ -775,7 +783,8 @@ namespace AudioAligner.Classes.Decoder.Search
 	    }
 
 	    //@Override
-	    public String toString() {
+        // TODO: try to override java toString()?
+	    public override string toString() {
 		    return name;
 	    }
 

@@ -191,7 +191,9 @@ namespace AudioAligner.Classes.Util
 		    // locations.
 		    while (insertionCount < numInsertions) {
 			    if (currIndex < words.Count) {
-				    double random = rand.nextGaussian();
+                    // TODO: use Gaussian distribution below?
+				    //double random = rand.nextGaussian();
+				    double random = rand.NextDouble();
 				    if (random <= ir && random >= -ir &&
 						    words[currIndex].getFlag().CompareTo("")==0) {
 					    // Insert a new word here

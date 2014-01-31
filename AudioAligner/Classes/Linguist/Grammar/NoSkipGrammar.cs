@@ -50,7 +50,8 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	     * InitialNode ----> KW1 ---> KW2 .... ---> KWn ---> FinalNode
 	     *   â†‘________________________________________________|
 	     */
-	    protected override GrammarNode createGrammar(){
+	    protected override GrammarNode createGrammar()
+	    {
 		    initialNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
 		    finalNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
 		    GrammarNode lastNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
@@ -92,7 +93,7 @@ namespace AudioAligner.Classes.Linguist.Grammar
          * @see edu.cmu.sphinx.util.props.Configurable#newProperties(edu.cmu.sphinx.util.props.PropertySheet)
          */
          //@Override
-         public void newProperties(PropertySheet ps){
+         public override void newProperties(PropertySheet ps){
              base.newProperties(ps);
              logMath = (LogMath) ps.getComponent(PROP_LOG_MATH);
          }

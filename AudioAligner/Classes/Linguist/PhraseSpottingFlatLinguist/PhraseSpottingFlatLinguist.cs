@@ -257,12 +257,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    logUnitInsertionProbability = logMath.linearToLog(ps
                     .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_UNIT_INSERTION_PROBABILITY));
             languageWeight = ps.getFloat(edu.cmu.sphinx.linguist.Linguist.PROP_LANGUAGE_WEIGHT);
-		    dumpGStates = ps.getBoolean(PROP_DUMP_GSTATES);
-		    showCompilationProgress = ps.getBoolean(PROP_SHOW_COMPILATION_PROGRESS);
-		    spreadWordProbabilitiesAcrossPronunciations = ps
-				    .getBoolean(PROP_SPREAD_WORD_PROBABILITIES_ACROSS_PRONUNCIATIONS);
+		    dumpGStates = JavaToCs.ConvertBool(ps.getBoolean(PROP_DUMP_GSTATES));
+		    showCompilationProgress = JavaToCs.ConvertBool(ps.getBoolean(PROP_SHOW_COMPILATION_PROGRESS));
+		    spreadWordProbabilitiesAcrossPronunciations = JavaToCs.ConvertBool(ps.getBoolean(PROP_SPREAD_WORD_PROBABILITIES_ACROSS_PRONUNCIATIONS));
 
-		    addOutOfGrammarBranch = ps.getBoolean(PROP_ADD_OUT_OF_GRAMMAR_BRANCH);
+		    addOutOfGrammarBranch = JavaToCs.ConvertBool(ps.getBoolean(PROP_ADD_OUT_OF_GRAMMAR_BRANCH));
 
 		    if (addOutOfGrammarBranch) {
 			    logOutOfGrammarBranchProbability = logMath.linearToLog(ps
@@ -409,7 +408,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    // for each non-empty grammar node in the grammar
 		    // break it into two nodes, one empty node representing the end
 		    // of word state
-		    foreach (GrammarNode grammarNode in grammar.getGrammarNodes()) {
+	        var nodes = JavaToCs.SetToCollection(grammar.getGrammarNodes());
+		    foreach (GrammarNode grammarNode in /*grammar.getGrammarNodes()*/nodes) {
 			    if (!grammarNode.isEmpty()) {
 				    GrammarNode branchNode = new GrammarNode(0, new Word[0][]);
 				    GrammarArc[] successors = grammarNode.getSuccessors();
@@ -422,8 +422,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 
 		    // get the nodes from the grammar and create states
 		    // for them. Add the non-empty gstates to the gstate list.
-		    TimerPool.getTimer(this, "Create States").start();
-		    foreach (GrammarNode grammarNode in grammar.getGrammarNodes()) {
+            TimerPool.getTimer(this, "Create States").start();
+            var nodes2 = JavaToCs.SetToCollection(grammar.getGrammarNodes());
+		    foreach (GrammarNode grammarNode in /*grammar.getGrammarNodes()*/nodes2) {
 			    GState gstate = createGState(grammarNode);
 			    gstateList.Add(gstate);
 		    }
@@ -477,8 +478,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 
 		    // Now that we are all done, dump out some interesting
 		    // information about the process
-		    if (dumpGStates) {
-			    foreach (GrammarNode grammarNode in grammar.getGrammarNodes()) {
+		    if (dumpGStates)
+		    {
+		        var nodes3 = JavaToCs.SetToCollection(grammar.getGrammarNodes());
+			    foreach (GrammarNode grammarNode in /*grammar.getGrammarNodes()*/nodes3) {
 				    GState gstate = getGState(grammarNode);
 				    gstate.dumpInfo();
 			    }
@@ -1499,16 +1502,16 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * Dumps the details for a gstate
 		     */
 		    void dumpDetails() {
-			    dumpCollection(" entryPoints", entryPoints.Keys);
-			    dumpCollection(" entryPoints states", entryPoints.Values);
-			    dumpCollection(" exitPoints", exitPoints.Keys);
-			    dumpCollection(" exitPoints states", exitPoints.Values);
+			    dumpCollection(" entryPoints", entryPoints.Keys.ToList());
+			    dumpCollection(" entryPoints states", entryPoints.Values.ToList());
+			    dumpCollection(" exitPoints", exitPoints.Keys.ToList());
+			    dumpCollection(" exitPoints states", exitPoints.Values.ToList());
 			    dumpNextNodes();
-			    dumpExitPoints(exitPoints.Values);
-			    dumpCollection(" startingContexts", getStartingContexts());
-			    dumpCollection(" branchingInFrom", leftContexts);
-			    dumpCollection(" branchingOutTo", rightContexts);
-			    dumpCollection(" existingStates", existingStates.Keys);
+			    dumpExitPoints(exitPoints.Values.ToList());
+			    dumpCollection(" startingContexts", getStartingContexts().ToList());
+			    dumpCollection(" branchingInFrom", leftContexts.ToList());
+			    dumpCollection(" branchingOutTo", rightContexts.ToList());
+			    dumpCollection(" existingStates", existingStates.Keys.ToList());
 		    }
 
 		    /**
@@ -1546,7 +1549,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param collection
 		     *            the collection to dump
 		     */
-		    private void dumpCollection(String name, List<object> collection) {
+		    private void dumpCollection<T>(String name, List<T> collection) {
 			    Console.WriteLine("     " + name);
 			    foreach (Object obj in collection) {
 				    Console.WriteLine("         " + obj);
@@ -1586,7 +1589,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
      */
     public class UnitContext {
 
-	    private readonly Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
+	    private static readonly Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
 	    private readonly Unit[] context;
 	    private int hashCode = 12;
 	    public readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
