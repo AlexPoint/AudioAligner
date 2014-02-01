@@ -104,7 +104,8 @@ namespace AudioAligner.Classes.Util
 		    numSubstitutions = (int) numSubs;
 		    int substitutionCount = 0;
 		    int currIndex = 0;
-		    Iterator<Word> iter = words.listIterator(0);
+		    //Iterator<Word> iter = words.listIterator(0);
+	        var wordIter = words[0];
 		
 		    // while number of substitution is less than total number of required
 		    // substitutioniterate over the list and substitute word at random
@@ -123,8 +124,10 @@ namespace AudioAligner.Classes.Util
 					    Word word = new Word(wordToInsert,currWord.getStartTime() , 
 							    currWord.getEndTime(), 0.01);
 					    word.substituteWord();
-					    words.Add(currIndex,word);
-					    iter = words.listIterator(currIndex);
+					    //words.Add(currIndex,word);
+						words.Insert(currIndex, word);
+					    //iter = words.listIterator(currIndex);
+						wordIter = words[currIndex];
 					    substitutionCount++;
 					    currIndex--;
 				    }
@@ -132,7 +135,8 @@ namespace AudioAligner.Classes.Util
 			    } else {
 				    // if current index has exceeded the total number of words,
 				    // start over again
-				    iter = words.listIterator(0);
+				    //iter = words.listIterator(0);
+			        wordIter = words[0];
 				    currIndex = 0;
 			    }
 		    }
@@ -147,7 +151,8 @@ namespace AudioAligner.Classes.Util
 		    numDeletions = (int)numDel;
 		    int deletionCount = 0;
 		    int currIndex = 0;
-		    Iterator<Word> iter = words.listIterator(0);
+		    //Iterator<Word> iter = words.listIterator(0);
+	        var wordIter = words[0];
 		    // while number of deletions is less than total number of required
 		    // deletions
 		    // iterate over the list and delete word from random locations.
@@ -162,7 +167,8 @@ namespace AudioAligner.Classes.Util
 					    // Delete word from here
 					
 					    words[currIndex].delete();
-					    iter = words.listIterator(currIndex);
+					    //iter = words.listIterator(currIndex);
+						wordIter = words[currIndex];
 					    deletionCount++;
 					    currIndex--;
 				    }
@@ -170,7 +176,8 @@ namespace AudioAligner.Classes.Util
 			    } else {
 				    // if current index has exceeded the total number of words,
 				    // start over again
-				    iter = words.listIterator(0);
+				    //iter = words.listIterator(0);
+			        wordIter = words[0];
 				    currIndex = 0;
 			    }
 		    }
@@ -185,7 +192,8 @@ namespace AudioAligner.Classes.Util
 		    numInsertions = (int)numIns;
 		    int insertionCount = 0;
 		    int currIndex = 0;
-		    Iterator<Word> iter = words.iterator();
+		    //Iterator<Word> iter = words.iterator();
+	        var wordIter = words[0];
 		    // while number of insertions is less than total number of required
 		    // insertions iterate over the list and insert random word at random
 		    // locations.
@@ -200,16 +208,19 @@ namespace AudioAligner.Classes.Util
 					    string wordToInsert= wordsToInsert[rand.Next(wordsToInsert.Count)];
 					    Word word = new Word(wordToInsert);
 					    word.insert();
-					    words.Add(currIndex, word );
-					    iter = words.listIterator(currIndex);
+					    //words.Add(currIndex, word );
+                        words.Insert(currIndex, word);
+					    //iter = words.listIterator(currIndex);
+						wordIter = words[currIndex];
 					    insertionCount = insertionCount + 1;
 				    }
-				    iter.next();
+				    //iter.next();
 				    currIndex++;
 			    } else {
 				    // if current index has exceeded the total number of words,
 				    // start over again
-				    iter = words.listIterator(0);
+				    //iter = words.listIterator(0);
+			        wordIter = words[0];
 				    currIndex = 0;
 			    }
 		    }
