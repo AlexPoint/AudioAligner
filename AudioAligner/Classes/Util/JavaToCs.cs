@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using com.sun.tools.javac.resources;
 using edu.cmu.sphinx.decoder.search;
+using edu.cmu.sphinx.linguist.flat;
 using java.util;
 
 namespace AudioAligner.Classes.Util
@@ -45,6 +46,18 @@ namespace AudioAligner.Classes.Util
 
             return objects;
         }
+        public static List<SentenceHMMState> SentenceHMMStateSetToCollection(Set javaSet)
+        {
+            var objects = new List<SentenceHMMState>();
+            var iter = javaSet.iterator();
+            while (iter.hasNext())
+            {
+                var obj = (SentenceHMMState) iter.next();
+                objects.Add(obj);
+            }
+
+            return objects;
+        }
     }
 
     /*
@@ -54,5 +67,23 @@ namespace AudioAligner.Classes.Util
     {
         // instead of Dictionary.SILENCE_SPELLING
         public const string SILENCE_SPELLING = "<sil>";
+
+        // instead of Linguist.PROP_WORD_INSERTION_PROBABILITY
+        public const string PROP_WORD_INSERTION_PROBABILITY = "wordInsertionProbability";
+
+        // instead of Linguist.PROP_UNIT_INSERTION_PROBABILITY
+        public const string PROP_UNIT_INSERTION_PROBABILITY = "unitInsertionProbability";
+
+        // instead of Linguist.PROP_SILENCE_INSERTION_PROBABILITY 
+        public const string PROP_SILENCE_INSERTION_PROBABILITY = "silenceInsertionProbability";
+
+        // instead of Linguist.PROP_FILLER_INSERTION_PROBABILITY
+        public const string PROP_FILLER_INSERTION_PROBABILITY = "fillerInsertionProbability";
+
+        // instead of Linguist.PROP_LANGUAGE_WEIGHT
+        public const string PROP_LANGUAGE_WEIGHT = "languageWeight";
+
+        // instead of Dictionary.SENTENCE_START_SPELLING
+        public const string SENTENCE_START_SPELLING = "<s>";
     }
 }

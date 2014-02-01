@@ -249,14 +249,14 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 
 		    // get the rest of the configuration data
 		    logWordInsertionProbability = logMath.linearToLog(ps
-                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_WORD_INSERTION_PROBABILITY));
+                    .getDouble(Constants.PROP_WORD_INSERTION_PROBABILITY));
 		    logSilenceInsertionProbability = logMath.linearToLog(ps
-                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_SILENCE_INSERTION_PROBABILITY));
+                    .getDouble(Constants.PROP_SILENCE_INSERTION_PROBABILITY));
 		    logFillerInsertionProbability = logMath.linearToLog(ps
-                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_FILLER_INSERTION_PROBABILITY));
+                    .getDouble(Constants.PROP_FILLER_INSERTION_PROBABILITY));
 		    logUnitInsertionProbability = logMath.linearToLog(ps
-                    .getDouble(edu.cmu.sphinx.linguist.Linguist.PROP_UNIT_INSERTION_PROBABILITY));
-            languageWeight = ps.getFloat(edu.cmu.sphinx.linguist.Linguist.PROP_LANGUAGE_WEIGHT);
+                    .getDouble(Constants.PROP_UNIT_INSERTION_PROBABILITY));
+            languageWeight = ps.getFloat(Constants.PROP_LANGUAGE_WEIGHT);
 		    dumpGStates = JavaToCs.ConvertBool(ps.getBoolean(PROP_DUMP_GSTATES));
 		    showCompilationProgress = JavaToCs.ConvertBool(ps.getBoolean(PROP_SHOW_COMPILATION_PROGRESS));
 		    spreadWordProbabilitiesAcrossPronunciations = JavaToCs.ConvertBool(ps.getBoolean(PROP_SPREAD_WORD_PROBABILITIES_ACROSS_PRONUNCIATIONS));
@@ -486,7 +486,8 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    gstate.dumpInfo();
 			    }
 		    }
-		    return SentenceHMMState.collectStates(initialState);
+	        var states = SentenceHMMState.collectStates(initialState);
+            return JavaToCs.SentenceHMMStateSetToCollection(states);
 	    }
 
 	    /**
@@ -495,7 +496,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * @return a new GState for the given GrammarNode
 	     */
 	    protected GState createGState(GrammarNode grammarNode) {
-		    return new GState(grammarNode);
+		    return new GState(grammarNode, this);
 	    }
 
 	    /**
@@ -622,8 +623,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	     * node. The GState is used to collect the entry and exit points for the
 	     * grammar node and for connecting up the grammar nodes to each other.
 	     */
-	    public class GState {
+	    public class GState
+	    {
 
+	        private readonly PhraseSpottingFlatLinguist linguist;
 		    private readonly Dictionary<ContextPair, List<SearchState>> entryPoints = new Dictionary<ContextPair, List<SearchState>>();
 		    private readonly Dictionary<ContextPair, List<SearchState>> exitPoints = new Dictionary<ContextPair, List<SearchState>>();
 		    private readonly Dictionary<string, SentenceHMMState> existingStates = new Dictionary<string, SentenceHMMState>();
@@ -642,9 +645,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @param node
 		     *            the grammar node
 		     */
-		    public GState(GrammarNode node) {
+            public GState(GrammarNode node, PhraseSpottingFlatLinguist linguist)
+            {
 			    this.node = node;
-			    nodeStateMap.Add(node, this);
+                this.linguist = linguist;
+			    linguist.nodeStateMap.Add(node, this);
 		    }
 
 		    /**
@@ -665,7 +670,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    if (node.isEmpty()) {
 					    GrammarArc[] arcs = getSuccessors();
 					    foreach (GrammarArc arc in arcs) {
-						    GState gstate = getGState(arc.getGrammarNode());
+						    GState gstate = linguist.getGState(arc.getGrammarNode());
 						    startingContexts.UnionWith(gstate.getStartingContexts());
 					    }
 				    } else {
@@ -725,7 +730,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    private void pullRightContexts() {
 			    GrammarArc[] arcs = getSuccessors();
 			    foreach (GrammarArc arc in arcs) {
-				    GState gstate = getGState(arc.getGrammarNode());
+				    GState gstate = this.linguist.getGState(arc.getGrammarNode());
 				    rightContexts.UnionWith(gstate.getStartingContexts());
 			    }
 		    }
@@ -768,7 +773,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    visitedSet.Add(getNode());
 			    }
 			    foreach (GrammarArc arc in getSuccessors()) {
-				    GState gstate = getGState(arc.getGrammarNode());
+				    GState gstate = this.linguist.getGState(arc.getGrammarNode());
 				    gstate.addLeftContext(leftContext);
 
 				    // if our successor state is empty, also push our
@@ -970,7 +975,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     */
 		    private void expandWord(UnitContext leftContext) {
 			    Word word = node.getWord();
-			    T("  Expanding word " + word + " for lc " + leftContext);
+                this.linguist.T("  Expanding word " + word + " for lc " + leftContext);
 			    Pronunciation[] pronunciations = word.getPronunciations(null);
 			    for (int i = 0; i < pronunciations.Length; i++) {
 				    expandPronunciation(leftContext, pronunciations[i], i);
@@ -1035,7 +1040,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 					    + ',' + startingContext + "])-G" + getNode().getID();
 			    PronunciationState ps = new PronunciationState(pname,
 					    pronunciation, which);
-			    T("     Expanding " + ps.getPronunciation() + " for lc "
+                this.linguist.T("     Expanding " + ps.getPronunciation() + " for lc "
 					    + leftContext);
 			    ContextPair cp = ContextPair.get(leftContext, startingContext);
 			    List<SearchState> epList = entryPoints[cp];
@@ -1091,30 +1096,31 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 			    Unit[] rc = getRC(units, which, rightContext);
 			    UnitContext actualRightContext = UnitContext.get(rc);
 			    LeftRightContext context = LeftRightContext.get(lc, rc);
-			    Unit cdUnit = unitManager.getUnit(units[which].getName(),
+                Unit cdUnit = this.linguist.unitManager.getUnit(units[which].getName(),
 					    units[which].isFiller(), context);
 			    UnitState unitState = new ExtendedUnitState(parent, which, cdUnit);
 			    float logInsertionProbability;
-			    if (unitState.getUnit().isSilence()) {
-				    logInsertionProbability = logSilenceInsertionProbability;
+			    if (unitState.getUnit().isSilence())
+			    {
+			        logInsertionProbability = this.linguist.logSilenceInsertionProbability;
 			    } else if (unitState.getUnit().isFiller()) {
-				    logInsertionProbability = logFillerInsertionProbability;
+                    logInsertionProbability = this.linguist.logFillerInsertionProbability;
 			    } else if (unitState.getWhich() == 0) {
-				    logInsertionProbability = logWordInsertionProbability;
+                    logInsertionProbability = this.linguist.logWordInsertionProbability;
 			    } else {
-				    logInsertionProbability = logUnitInsertionProbability;
+                    logInsertionProbability = this.linguist.logUnitInsertionProbability;
 			    }
 			    // check to see if this state already exists, if so
 			    // branch to it and we are done, otherwise, branch to
 			    // the new state and expand it.
 			    SentenceHMMState existingState = getExistingState(unitState);
 			    if (existingState != null) {
-				    attachState(tail, existingState, logOne,
+                    attachState(tail, existingState, this.linguist.logOne,
 						    logInsertionProbability);
 				    // T(" Folding " + existingState);
 				    return null;
 			    } else {
-				    attachState(tail, unitState, logOne, logInsertionProbability);
+                    attachState(tail, unitState, this.linguist.logOne, logInsertionProbability);
 				    addStateToCache(unitState);
 				    // T(" Attaching " + unitState);
 				    tail = expandUnit(unitState);
@@ -1237,7 +1243,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @return the size of the left context
 		     */
 		    protected int getLeftContextSize() {
-			    return acousticModel.getLeftContextSize();
+                return this.linguist.acousticModel.getLeftContextSize();
 		    }
 
 		    /**
@@ -1246,7 +1252,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		     * @return the size of the right context
 		     */
 		    protected int getRightContextSize() {
-			    return acousticModel.getRightContextSize();
+                return this.linguist.acousticModel.getRightContextSize();
 		    }
 
 		    /**
@@ -1283,7 +1289,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 			    // tail silence unit
 			    if (unit.getUnit().isSilence()) {
 				    // add the loopback, but don't expand it // anymore
-				    attachState(tail, unit, logOne, logSilenceInsertionProbability);
+                    attachState(tail, unit, this.linguist.logOne, this.linguist.logSilenceInsertionProbability);
 			    }
 			    return tail;
 		    }
@@ -1301,10 +1307,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 			    HMMStateState finalState;
 			    Unit unit = unitState.getUnit();
 			    HMMPosition position = unitState.getPosition();
-			    HMM hmm = acousticModel.lookupNearestHMM(unit, position, false);
+                HMM hmm = this.linguist.acousticModel.lookupNearestHMM(unit, position, false);
 			    HMMState initialState = hmm.getInitialState();
 			    hmmTree = new HMMStateState(unitState, initialState);
-			    attachState(unitState, hmmTree, logOne, logOne);
+                attachState(unitState, hmmTree, this.linguist.logOne, this.linguist.logOne);
 			    addStateToCache(hmmTree);
 			    finalState = expandHMMTree(unitState, hmmTree);
 			    return finalState;
@@ -1332,9 +1338,9 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    SentenceHMMState existingState = getExistingState(newState);
 				    float logProb = arc.getLogProbability();
 				    if (existingState != null) {
-					    attachState(tree, existingState, logOne, logProb);
+                        attachState(tree, existingState, this.linguist.logOne, logProb);
 				    } else {
-					    attachState(tree, newState, logOne, logProb);
+                        attachState(tree, newState, this.linguist.logOne, logProb);
 					    addStateToCache(newState);
 					    retState = expandHMMTree(parent, newState);
 				    }
@@ -1359,10 +1365,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    public void connect() {
 
 			    foreach (GrammarArc arc in getSuccessors()) {
-				    GState gstate = getGState(arc.getGrammarNode());
+                    GState gstate = this.linguist.getGState(arc.getGrammarNode());
 				    if (!gstate.getNode().isEmpty()
 						    && gstate.getNode().getWord().getSpelling().Equals(
-								    Dictionary.SENTENCE_START_SPELLING)) {
+								    Constants.SENTENCE_START_SPELLING)) {
 					    continue;
 				    }
 				    float probability = arc.getProbability();
@@ -1371,10 +1377,11 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    // pronunciations. If there are 3 ways to say the
 				    // word, then each pronunciation gets 1/3 of the total
 				    // probability.
-				    if (spreadWordProbabilitiesAcrossPronunciations) {
+                    if (this.linguist.spreadWordProbabilitiesAcrossPronunciations)
+                    {
 					    int numPronunciations = gstate.getNode().getWord()
 							    .getPronunciations(null).Length;
-					    probability -= logMath.linearToLog(numPronunciations);
+                        probability -= this.linguist.logMath.linearToLog(numPronunciations);
 				    }
 				    float fprob = probability; // final probability
 
@@ -1404,7 +1411,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 				    SentenceHMMState sourceState = (SentenceHMMState) source;
 				    foreach (SearchState dest in destList) {
 					    SentenceHMMState destState = (SentenceHMMState) dest;
-					    sourceState.connect(getArc(destState, logLangProb, logOne));
+                        sourceState.connect(this.linguist.getArc(destState, logLangProb, this.linguist.logOne));
 					    exitConnections++;
 				    }
 			    }
@@ -1428,9 +1435,10 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 		    protected void attachState(SentenceHMMState prevState,
 				    SentenceHMMState nextState, float logLanguageProbablity,
 				    float logInsertionProbablity) {
-			    prevState.connect(getArc(nextState, logLanguageProbablity,
+                        prevState.connect(this.linguist.getArc(nextState, logLanguageProbablity,
 					    logInsertionProbablity));
-			    if (showCompilationProgress && totalStateCounter++ % 1000 == 0) {
+                        if (this.linguist.showCompilationProgress && this.linguist.totalStateCounter++ % 1000 == 0)
+                        {
 				    Console.WriteLine(".");
 			    }
 		    }
@@ -1592,7 +1600,7 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
 	    private static readonly Cache<UnitContext> unitContextCache = new Cache<UnitContext>();
 	    private readonly Unit[] context;
 	    private int hashCode = 12;
-	    public readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
+	    public static readonly UnitContext EMPTY = new UnitContext(Unit.EMPTY_ARRAY);
 	    public static readonly UnitContext SILENCE = new UnitContext(
 			    new Unit[] { UnitManager.SILENCE });
 
