@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioAligner.Classes.Util;
 using edu.cmu.sphinx.decoder;
 using edu.cmu.sphinx.linguist.language.grammar;
 using edu.cmu.sphinx.util;
@@ -52,7 +53,7 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	     */
 	    protected override GrammarNode createGrammar()
 	    {
-	        string silence = Dictionary.SILENCE_SPELLING;
+            string silence = Constants.SILENCE_SPELLING;
 		    initialNode = createGrammarNode(silence);
 		    finalNode = createGrammarNode(silence);
 		    GrammarNode lastNode = createGrammarNode(silence);

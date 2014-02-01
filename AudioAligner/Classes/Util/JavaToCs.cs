@@ -44,4 +44,13 @@ namespace AudioAligner.Classes.Util
             return objects;
         }
     }
+
+    /*
+     * All the constants that we cannot retrieve in sphinx4
+     */
+    public static class Constants
+    {
+        // instead of Dictionary.SILENCE_SPELLING
+        public const string SILENCE_SPELLING = "<sil>";
+    }
 }
