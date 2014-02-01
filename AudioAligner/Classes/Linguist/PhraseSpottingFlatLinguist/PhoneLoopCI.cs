@@ -50,145 +50,168 @@ namespace AudioAligner.Classes.Linguist.PhraseSpottingFlatLinguist
          * @return the phone loop search graph
          */
         public SearchGraph getSearchGraph() {
-            return new PhoneLoopSearchGraph();
+            return new PhoneLoopSearchGraph(this.inititalState, this.model, this.logPhoneInsertionProbability);
+        }
+        
+    }
+
+    class PhoneLoopSearchGraph : SearchGraph
+    {
+        public static readonly float logOne = LogMath.getLogOne();
+        public readonly AcousticModel model;
+        protected readonly Dictionary<String, SearchState> existingStates;
+        private readonly float logPhoneInsertionProbability;
+
+        protected readonly SentenceHMMState firstState;
+        protected readonly SentenceHMMState inititalState;
+
+
+        /** Constructs a phone loop search graph. */
+        public PhoneLoopSearchGraph(SentenceHMMState initState, AcousticModel model, float logPhoneInsertionProbability)
+        {
+            this.inititalState = initState;
+            this.model = model;
+            this.logPhoneInsertionProbability = logPhoneInsertionProbability;
+            existingStates = new Dictionary<string, SearchState>();
+            firstState = new UnknownWordState();
+            SentenceHMMState branchState = new BranchOutState(firstState);
+            attachState(firstState, branchState, logOne, logOne);
+
+            SentenceHMMState lastState = new LoopBackState(firstState);
+            //lastState.setFinalState(true);
+            //attachState(lastState, branchState, LogMath.getLogZero(),
+            //		LogMath.getLogZero());
+            attachState(lastState, inititalState, logOne, logOne);
+
+            for (java.util.Iterator i = model.getContextIndependentUnitIterator(); i.hasNext(); )
+            {
+                Unit unit = (Unit) i.next();
+                UnitState unitState = new UnitState(unit, HMMPosition.UNDEFINED);
+
+                // attach unit state to the branch out state
+                attachState(branchState, unitState, logOne, logPhoneInsertionProbability);
+
+                HMM hmm = model.lookupNearestHMM
+                        (unitState.getUnit(), unitState.getPosition(), false);
+                HMMState initialState = hmm.getInitialState();
+                HMMStateState hmmTree = new HMMStateState(unitState, initialState);
+                addStateToCache(hmmTree);
+
+                // attach first HMM state to the unit state
+                attachState(unitState, hmmTree, logOne, logOne);
+
+                // expand the HMM tree
+                HMMStateState finalState = expandHMMTree(unitState, hmmTree);
+
+                // attach final state of HMM tree to the loopback state
+                attachState(finalState, lastState, logOne, logOne);
+            }
         }
 
 
-        protected class PhoneLoopSearchGraph : SearchGraph {
+        /**
+         * Retrieves initial search state
+         *
+         * @return the set of initial search state
+         */
+        //@Override
+        public SearchState getInitialState()
+        {
+            return firstState;
+        }
 
-            protected readonly Dictionary<String, SearchState> existingStates;
-            protected readonly SentenceHMMState firstState;
+
+        /**
+         * Returns the number of different state types maintained in the search graph
+         *
+         * @return the number of different state types
+         */
+        //@Override
+        public int getNumStateOrder()
+        {
+            return 5;
+        }
 
 
-            /** Constructs a phone loop search graph. */
-            public PhoneLoopSearchGraph() {
-                existingStates = new Dictionary<string, SearchState>();
-                firstState = new UnknownWordState();
-                SentenceHMMState branchState = new BranchOutState(firstState);
-                attachState(firstState, branchState, logOne, logOne);
+        /**
+         * Checks to see if a state that matches the given state already exists
+         *
+         * @param state the state to check
+         * @return true if a state with an identical signature already exists.
+         */
+        private SentenceHMMState getExistingState(SentenceHMMState state)
+        {
+            return (SentenceHMMState)existingStates[state.getSignature()];
+        }
 
-                SentenceHMMState lastState = new LoopBackState(firstState);
-                //lastState.setFinalState(true);
-                //attachState(lastState, branchState, LogMath.getLogZero(),
-                //		LogMath.getLogZero());
-                attachState(lastState, inititalState, logOne, logOne);
 
-                for (Iterator<Unit> i = model.getContextIndependentUnitIterator(); i.hasNext();) {
-                    UnitState unitState = new UnitState(i.next(), HMMPosition.UNDEFINED);
+        /**
+         * Adds the given state to the cache of states
+         *
+         * @param state the state to add
+         */
+        protected void addStateToCache(SentenceHMMState state)
+        {
+            existingStates.Add(state.getSignature(), state);
+        }
 
-                    // attach unit state to the branch out state
-                    attachState(branchState, unitState, logOne,
-                            logPhoneInsertionProbability);
 
-                    HMM hmm = model.lookupNearestHMM
-                            (unitState.getUnit(), unitState.getPosition(), false);
-                    HMMState initialState = hmm.getInitialState();
-                    HMMStateState hmmTree = new HMMStateState(unitState, initialState);
-                    addStateToCache(hmmTree);
+        /**
+         * Expands the given hmm state tree
+         *package edu.cmu.sphinx.linguist.KWSFlatLinguist;
 
-                    // attach first HMM state to the unit state
-                    attachState(unitState, hmmTree, logOne, logOne);
+public class PhoneLoopCI {
 
-                    // expand the HMM tree
-                    HMMStateState finalState = expandHMMTree(unitState, hmmTree);
+}
 
-                    // attach final state of HMM tree to the loopback state
-                    attachState(finalState, lastState, logOne, logOne);
+         * @param parent the parent of the tree
+         * @param tree   the tree to expand
+         * @return the final state in the tree
+         */
+        protected HMMStateState expandHMMTree(UnitState parent,
+                                            HMMStateState tree)
+        {
+            HMMStateState retState = tree;
+            foreach (HMMStateArc arc in tree.getHMMState().getSuccessors())
+            {
+                HMMStateState newState;
+                if (arc.getHMMState().isEmitting())
+                {
+                    newState = new HMMStateState
+                        (parent, arc.getHMMState());
+                }
+                else
+                {
+                    newState = new NonEmittingHMMState
+                        (parent, arc.getHMMState());
+                }
+                SentenceHMMState existingState = getExistingState(newState);
+                float logProb = arc.getLogProbability();
+                if (existingState != null)
+                {
+                    attachState(tree, existingState, logOne, logProb);
+                }
+                else
+                {
+                    attachState(tree, newState, logOne, logProb);
+                    addStateToCache(newState);
+                    retState = expandHMMTree(parent, newState);
                 }
             }
+            return retState;
+        }
 
 
-            /**
-             * Retrieves initial search state
-             *
-             * @return the set of initial search state
-             */
-            //@Override
-            public SearchState getInitialState() {
-                return firstState;
-            }
-
-
-            /**
-             * Returns the number of different state types maintained in the search graph
-             *
-             * @return the number of different state types
-             */
-            //@Override
-            public int getNumStateOrder() {
-                return 5;
-            }
-
-
-            /**
-             * Checks to see if a state that matches the given state already exists
-             *
-             * @param state the state to check
-             * @return true if a state with an identical signature already exists.
-             */
-            private SentenceHMMState getExistingState(SentenceHMMState state) {
-                return (SentenceHMMState) existingStates[state.getSignature()];
-            }
-
-
-            /**
-             * Adds the given state to the cache of states
-             *
-             * @param state the state to add
-             */
-            protected void addStateToCache(SentenceHMMState state) {
-                existingStates.Add(state.getSignature(), state);
-            }
-
-
-            /**
-             * Expands the given hmm state tree
-             *package edu.cmu.sphinx.linguist.KWSFlatLinguist;
-
-    public class PhoneLoopCI {
-
-    }
-
-             * @param parent the parent of the tree
-             * @param tree   the tree to expand
-             * @return the final state in the tree
-             */
-            protected HMMStateState expandHMMTree(UnitState parent,
-                                                HMMStateState tree) {
-                HMMStateState retState = tree;
-                foreach (HMMStateArc arc in tree.getHMMState().getSuccessors()) {
-                    HMMStateState newState;
-                    if (arc.getHMMState().isEmitting()) {
-                        newState = new HMMStateState
-                            (parent, arc.getHMMState());
-                    } else {
-                        newState = new NonEmittingHMMState
-                            (parent, arc.getHMMState());
-                    }
-                    SentenceHMMState existingState = getExistingState(newState);
-                    float logProb = arc.getLogProbability();
-                    if (existingState != null) {
-                        attachState(tree, existingState, logOne, logProb);
-                    } else {
-                        attachState(tree, newState, logOne, logProb);
-                        addStateToCache(newState);
-                        retState = expandHMMTree(parent, newState);
-                    }
-                }
-                return retState;
-            }
-
-
-            protected void attachState(SentenceHMMState prevState,
-                                       SentenceHMMState nextState,
-                                       float logLanguageProbability,
-                                       float logInsertionProbability) {
-                SentenceHMMStateArc arc = new SentenceHMMStateArc
-                        (nextState,
-                         logLanguageProbability,
-                         logInsertionProbability);
-                prevState.connect(arc);
-            }
+        protected void attachState(SentenceHMMState prevState,
+                                   SentenceHMMState nextState,
+                                   float logLanguageProbability,
+                                   float logInsertionProbability)
+        {
+            SentenceHMMStateArc arc = new SentenceHMMStateArc
+                    (nextState,
+                     logLanguageProbability,
+                     logInsertionProbability);
+            prevState.connect(arc);
         }
     }
 

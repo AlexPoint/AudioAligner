@@ -52,9 +52,10 @@ namespace AudioAligner.Classes.Linguist.Grammar
 	     */
 	    protected override GrammarNode createGrammar()
 	    {
-		    initialNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
-		    finalNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
-		    GrammarNode lastNode = createGrammarNode(Dictionary.SILENCE_SPELLING);
+	        string silence = Dictionary.SILENCE_SPELLING;
+		    initialNode = createGrammarNode(silence);
+		    finalNode = createGrammarNode(silence);
+		    GrammarNode lastNode = createGrammarNode(silence);
 		    initialNode.add(lastNode, LogMath.getLogOne());
 		    lastNode.add(initialNode, LogMath.getLogOne());
 		    GrammarNode lastWordGrammarNode = initialNode;
