@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AudioAligner.Classes.PhraseSpotter;
 using AudioAligner.Classes.Util;
+using com.sun.org.apache.regexp.@internal;
 using edu.cmu.sphinx.decoder.search;
 using edu.cmu.sphinx.frontend;
 using edu.cmu.sphinx.linguist;
@@ -245,9 +246,11 @@ namespace AudioAligner.Classes.Decoder.Search
 			    // last search graph expansion here
 			    ActiveList fixedList = undoLastGrowStep();
 
-			    if (!streamEnd) {
+			    if (!streamEnd)
+			    {
+			        var jResultList = CsToJava.ConvertToJList(resultList);
 				    // now create the result using the fixed active-list
-				    result = new Result(fixedList, resultList, currentFrameNumber,
+				    result = new Result(fixedList, jResultList, currentFrameNumber,
 						    done, logMath);
 			    }
 		    }
@@ -756,7 +759,7 @@ namespace AudioAligner.Classes.Decoder.Search
 			    pruner.allocate();
 			    scorer.allocate();
 		    } catch (IOException e) {
-			    throw new RuntimeException(
+                throw new SystemException(
 					    "Allocation of search manager resources failed", e);
 		    }
 
@@ -777,7 +780,7 @@ namespace AudioAligner.Classes.Decoder.Search
 			    pruner.deallocate();
 			    linguist.deallocate();
 		    } catch (IOException e) {
-			    throw new RuntimeException(
+                throw new SystemException(
 					    "Deallocation of search manager resources failed", e);
 		    }
 	    }

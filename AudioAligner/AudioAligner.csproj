@@ -133,6 +133,7 @@
     <Compile Include="Classes\PhraseSpotter\PraseSpotter.cs" />
     <Compile Include="Classes\PhraseSpotter\SimplePhraseSpotter\SimplePhraseSpotter.cs" />
     <Compile Include="Classes\Util\Cache.cs" />
+    <Compile Include="Classes\Util\CsToJava.cs" />
     <Compile Include="Classes\Util\JavaToCs.cs" />
     <Compile Include="Classes\Util\StringCustomize.cs" />
     <Compile Include="Classes\Util\StringErrorGenerator.cs" />
