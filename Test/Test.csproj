@@ -46,12 +46,28 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="resource\models\cmudict04_lts.bin" />
+    <None Include="resource\wav\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AudioAligner\AudioAligner.csproj">
       <Project>{ea1f6ef9-1c1b-47aa-8b84-0978ea12b7e8}</Project>
       <Name>AudioAligner</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resource\batchFile.txt" />
+    <Content Include="resource\models\abbrev.txt" />
+    <Content Include="resource\models\num.txt" />
+    <Content Include="resource\models\wordFile.txt" />
+    <Content Include="resource\transcription\dedication.txt" />
+    <Content Include="resource\transcription\have.txt" />
+    <Content Include="resource\transcription\hello.txt" />
+    <Content Include="resource\transcription\oov_numbers.txt" />
+    <Content Include="resource\wav\dedication.mp3" />
+    <Content Include="resource\wav\dedication.wav" />
+    <Content Include="resource\wav\hello.wav" />
+    <Content Include="resource\wav\oov_numbers.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
