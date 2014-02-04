@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resource\batchFile.txt" />
+    <Content Include="resource\ffmpeg\ffmpeg.exe" />
     <Content Include="resource\models\abbrev.txt" />
     <Content Include="resource\models\num.txt" />
     <Content Include="resource\models\wordFile.txt" />
