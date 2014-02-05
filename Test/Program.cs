@@ -42,7 +42,14 @@ namespace Test
 
             Console.WriteLine("Start conversion");
 
-            ConvertFile(audioFilePath);
+            var wavFilePath = ConvertFile(audioFilePath);
+            Console.WriteLine("Done converting, result is available at " + wavFilePath);
+
+            Console.WriteLine("Split first 10 seconds");
+
+            var extractFilePath = SplitAudioFile(wavFilePath, 0, 10000);
+
+            Console.WriteLine("Done splitting, result is available at " + extractFilePath);
 
             Console.ReadLine();
         }
@@ -105,7 +112,77 @@ namespace Test
             return string.Format("http://www.youtube.com/watch?v={0}", youtubeId);
         }
 
-        private static void ConvertFile(string inputFilePath/*, Guid taskID*/)
+        private static string SplitAudioFile(string inputFilePath, int extractStartInMs, int extractEndInMs)
+        {
+            //ffmpeg -i your_audio_file.mp3 -acodec copy -t 00:30:00 -ss 00:00:00 half_hour_split.mp3
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            var ffmpegPath = PathToProject + "/resource/ffmpeg/ffmpeg.exe";
+
+            var filename = Path.GetFileNameWithoutExtension(inputFilePath);
+            var outputFileName = filename + "_" + extractStartInMs + "_" + extractEndInMs;
+
+            var outputFilePath = Path.GetDirectoryName(inputFilePath) + "/" + outputFileName + "." +
+                                 Path.GetExtension(inputFilePath);
+
+            var startTime = new TimeSpan(0, 0, 0, 0, extractStartInMs).ToString();
+            var duration = new TimeSpan(0, 0, 0, 0, (extractEndInMs - extractStartInMs)).ToString();
+
+            var psi = new ProcessStartInfo();
+            psi.FileName = ffmpegPath;
+            psi.Arguments = string.Format(@"-i ""{0}"" -acodec copy -t {1} -ss {2} ""{3}""", inputFilePath, duration, startTime, outputFilePath);
+            psi.CreateNoWindow = true;
+            psi.ErrorDialog = false;
+            psi.UseShellExecute = false;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardInput = false;
+            psi.RedirectStandardError = true;
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(psi))
+                {
+                    exeProcess.PriorityClass = ProcessPriorityClass.High;
+                    string outString = string.Empty;
+                    // use ansynchronous reading for at least one of the streams
+                    // to avoid deadlock
+                    exeProcess.OutputDataReceived += (s, e) =>
+                    {
+                        outString += e.Data;
+                    };
+                    exeProcess.BeginOutputReadLine();
+                    // now read the StandardError stream to the end
+                    // this will cause our main thread to wait for the
+                    // stream to close (which is when ffmpeg quits)
+                    string errString = exeProcess.StandardError.ReadToEnd();
+                    Console.WriteLine(outString);
+                    Console.WriteLine(errString);
+                    //byte[] fileBytes = File.ReadAllBytes(outputFilePath);
+                    /*if (fileBytes.Length > 0)
+                    {
+                        this._sSystem.SaveOutputFile(
+                            fileBytes,
+                            tmpName.Substring(tmpName.LastIndexOf("\\") + 1),
+                            taskID
+                            );
+                    }*/
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            stopWatch.Stop();
+            Console.WriteLine("Transcoding done in " + stopWatch.Elapsed);
+
+            return outputFilePath;
+        }
+
+        private static string ConvertFile(string inputFilePath/*, Guid taskID*/)
         {
             // cmd line: ffmpeg -i input.mp3 -acodec pcm_s16le -ac 1 -ar 16000 output.wav
 
@@ -170,6 +247,8 @@ namespace Test
 
             stopWatch.Stop();
             Console.WriteLine("Transcoding done in " + stopWatch.Elapsed);
+
+            return outputFilePath;
         }
     }
 }
