@@ -19,8 +19,10 @@ namespace Test
         static void Main(string[] args)
         {
             PathToProject = Environment.CurrentDirectory + "/../..";
-            /*var pathToAudioFile = pathToProject + "/resource/wav/dedication.wav";
-            var pathToTranscriptFile = pathToProject + "/resource/transcription/dedication.txt";
+
+
+            var pathToAudioFile = PathToProject + "/resource/wav/dedication.wav";
+            var pathToTranscriptFile = PathToProject + "/resource/transcription/dedication.txt";
             Aligner aligner = new Aligner("../../resource/config.xml",	pathToAudioFile, pathToTranscriptFile);	
 		    //Aligner aligner = new Aligner("./src/config.xml",	relativePathToAudio, relativePathToTranscript);
 
@@ -33,10 +35,10 @@ namespace Test
 		    aligner.setBackwardJumpProbability(0.001);
 		    //BufferedReader reader = new BufferedReader(new FileReader("./result.txt"));
 		    string result = aligner.align();
-		    Console.WriteLine(result);*/
+		    Console.WriteLine(result);
 
 
-            // Louis CK video
+            /*// Louis CK video
             var youtubeId = "Y8ynUspj4c8";
             var audioFilePath = DownloadYoutubeAudio(youtubeId);
 
@@ -49,7 +51,7 @@ namespace Test
 
             var extractFilePath = SplitAudioFile(wavFilePath, 0, 10000);
 
-            Console.WriteLine("Done splitting, result is available at " + extractFilePath);
+            Console.WriteLine("Done splitting, result is available at " + extractFilePath);*/
 
             Console.ReadLine();
         }

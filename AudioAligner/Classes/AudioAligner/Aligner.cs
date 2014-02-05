@@ -20,7 +20,7 @@ using Console = System.Console;
 
 namespace AudioAligner.Classes.AudioAligner
 {
-    class Aligner : IAudioAligner
+    public class Aligner : IAudioAligner
     {
         private string PROP_GRAMMAR; // which grammar to use from config
 	    private string PROP_RECOGNIZER; // which recognizer to use from config
@@ -78,6 +78,8 @@ namespace AudioAligner.Classes.AudioAligner
 		    txtInTranscription = readTranscription();
 		    phraseSpotterResult = new List<PhraseSpotterResult>();
 
+            // initializing the ConfigurationManager raises an error if com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl class is not loaded 
+            var s = new com.sun.org.apache.xerces.@internal.jaxp.SAXParserFactoryImpl();
 		    cm = new ConfigurationManager(config);
 		    absoluteBeamWidth = cm.getGlobalProperty("absoluteBeamWidth");
 		    relativeBeamWidth = cm.getGlobalProperty("relativeBeamWidth");
