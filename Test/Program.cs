@@ -7,7 +7,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using AudioAligner.Classes.AudioAligner;
+using edu.cmu.sphinx.demo.aligner;
 using YoutubeExtractor;
 
 namespace Test
@@ -20,10 +20,13 @@ namespace Test
         {
             PathToProject = Environment.CurrentDirectory + "/../..";
 
-
+            var pathToConfigFile = PathToProject + "/resource/config.xml";
             var pathToAudioFile = PathToProject + "/resource/wav/dedication.wav";
             var pathToTranscriptFile = PathToProject + "/resource/transcription/dedication.txt";
-            Aligner aligner = new Aligner("../../resource/config.xml",	pathToAudioFile, pathToTranscriptFile);	
+
+            AlignerDemo.main(new string[]{pathToConfigFile, pathToAudioFile, pathToTranscriptFile});
+
+            /*Aligner aligner = new Aligner("../../resource/config.xml",	pathToAudioFile, pathToTranscriptFile);	
 		    //Aligner aligner = new Aligner("./src/config.xml",	relativePathToAudio, relativePathToTranscript);
 
             aligner.setAddOutOfGrammarBranchProperty("true");
@@ -35,7 +38,7 @@ namespace Test
 		    aligner.setBackwardJumpProbability(0.001);
 		    //BufferedReader reader = new BufferedReader(new FileReader("./result.txt"));
 		    string result = aligner.align();
-		    Console.WriteLine(result);
+		    Console.WriteLine(result);*/
 
 
             /*// Louis CK video

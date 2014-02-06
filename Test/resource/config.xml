@@ -27,7 +27,7 @@
 		<property name="searchManager" value="searchManager" />
 	</component>
 
-	<component name="searchManager" type="AudioAligner.Classes.Decoder.Search.AlignerSearchManager">
+	<component name="searchManager" type="edu.cmu.sphinx.decoder.search.AlignerSearchManager">
 		<property name="logMath" value="logMath" />
 		<property name="linguist" value="aflatLinguist" />
 		<property name="pruner" value="trivialPruner" />
