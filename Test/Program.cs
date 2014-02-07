@@ -7,7 +7,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using edu.cmu.sphinx.demo.aligner;
 using YoutubeExtractor;
 
 namespace Test
@@ -20,11 +19,14 @@ namespace Test
         {
             PathToProject = Environment.CurrentDirectory + "/../..";
 
-            var pathToConfigFile = PathToProject + "/resource/config.xml";
+            /*var pathToConfigFile = PathToProject + "/resource/config.xml";
             var pathToAudioFile = PathToProject + "/resource/wav/dedication.wav";
             var pathToTranscriptFile = PathToProject + "/resource/transcription/dedication.txt";
 
-            AlignerDemo.main(new string[]{pathToConfigFile, pathToAudioFile, pathToTranscriptFile});
+            var res = AlignTranscript(pathToConfigFile, pathToAudioFile, pathToTranscriptFile);
+
+            Console.WriteLine("Aligning result: " + res);*/
+
 
             /*Aligner aligner = new Aligner("../../resource/config.xml",	pathToAudioFile, pathToTranscriptFile);	
 		    //Aligner aligner = new Aligner("./src/config.xml",	relativePathToAudio, relativePathToTranscript);
@@ -41,7 +43,7 @@ namespace Test
 		    Console.WriteLine(result);*/
 
 
-            /*// Louis CK video
+            // Louis CK video
             var youtubeId = "Y8ynUspj4c8";
             var audioFilePath = DownloadYoutubeAudio(youtubeId);
 
@@ -50,13 +52,85 @@ namespace Test
             var wavFilePath = ConvertFile(audioFilePath);
             Console.WriteLine("Done converting, result is available at " + wavFilePath);
 
-            Console.WriteLine("Split first 10 seconds");
+            Console.WriteLine("Splitting audio file");
 
-            var extractFilePath = SplitAudioFile(wavFilePath, 0, 10000);
+            Console.WriteLine("Write starting time (in ms)");
+            var output = Console.ReadLine();
+            var startTime = int.Parse(output);
 
-            Console.WriteLine("Done splitting, result is available at " + extractFilePath);*/
+            Console.WriteLine("Write starting time (in ms)");
+            var output2 = Console.ReadLine();
+            var endTime = int.Parse(output2);
+
+            var extractFilePath = SplitAudioFile(wavFilePath, startTime, endTime);
+
+            Console.WriteLine("Done splitting, result is available at " + extractFilePath);
+
+            //Console.WriteLine("Write ");
 
             Console.ReadLine();
+        }
+
+        private static string AlignTranscript(string pathToConfig, string audioFilePath, string transcriptFilePath)
+        {
+            // cmd line: java.exe -jar aligner.jar pathToConfig pathToAudio pathToTranscript
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var javaPath = PathToProject + "/resource/aligner/java.exe";
+            var alignerJarPath = PathToProject + "/resource/aligner/aligner.jar";
+
+            
+            var psi = new ProcessStartInfo();
+            psi.FileName = javaPath;
+            psi.Arguments = string.Format(@"-jar ""{0}"" ""{1}"" ""{2}"" ""{3}""", alignerJarPath, pathToConfig, audioFilePath, transcriptFilePath);
+            psi.CreateNoWindow = true;
+            psi.ErrorDialog = false;
+            psi.UseShellExecute = false;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardInput = false;
+            psi.RedirectStandardError = true;
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(psi))
+                {
+                    exeProcess.PriorityClass = ProcessPriorityClass.High;
+                    string outString = string.Empty;
+                    // use ansynchronous reading for at least one of the streams
+                    // to avoid deadlock
+                    exeProcess.OutputDataReceived += (s, e) =>
+                    {
+                        outString += e.Data;
+                    };
+                    exeProcess.BeginOutputReadLine();
+                    // now read the StandardError stream to the end
+                    // this will cause our main thread to wait for the
+                    // stream to close (which is when ffmpeg quits)
+                    string errString = exeProcess.StandardError.ReadToEnd();
+                    Console.WriteLine(outString);
+                    Console.WriteLine(errString);
+                    //byte[] fileBytes = File.ReadAllBytes(outputFilePath);
+                    /*if (fileBytes.Length > 0)
+                    {
+                        this._sSystem.SaveOutputFile(
+                            fileBytes,
+                            tmpName.Substring(tmpName.LastIndexOf("\\") + 1),
+                            taskID
+                            );
+                    }*/
+                    stopWatch.Stop();
+                    Console.WriteLine("Aligning done in " + stopWatch.Elapsed);
+                    return outString;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return "";
+            }
         }
 
         private static string DownloadYoutubeAudio(string youtubeId)
