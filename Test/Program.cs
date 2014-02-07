@@ -66,7 +66,16 @@ namespace Test
 
             Console.WriteLine("Done splitting, result is available at " + extractFilePath);
 
-            //Console.WriteLine("Write ");
+            Console.WriteLine("Write the transcript");
+            var transcript = Console.ReadLine();
+
+            var pathToConfigFile = PathToProject + "/resource/config.xml";
+            var pathToTranscript = PathToProject + "/resource/tempTranscript.txt";
+            File.WriteAllText(pathToTranscript, transcript);
+            var alignerResult = AlignTranscript(pathToConfigFile, extractFilePath, pathToTranscript);
+
+            Console.Write("Aligner result:");
+            Console.WriteLine(alignerResult);
 
             Console.ReadLine();
         }
@@ -110,7 +119,7 @@ namespace Test
                     // this will cause our main thread to wait for the
                     // stream to close (which is when ffmpeg quits)
                     string errString = exeProcess.StandardError.ReadToEnd();
-                    Console.WriteLine(outString);
+                    //Console.WriteLine(outString);
                     Console.WriteLine(errString);
                     //byte[] fileBytes = File.ReadAllBytes(outputFilePath);
                     /*if (fileBytes.Length > 0)
