@@ -19,32 +19,9 @@ namespace Test
         {
             PathToProject = Environment.CurrentDirectory + "/../..";
 
-            /*var pathToConfigFile = PathToProject + "/resource/config.xml";
-            var pathToAudioFile = PathToProject + "/resource/wav/dedication.wav";
-            var pathToTranscriptFile = PathToProject + "/resource/transcription/dedication.txt";
-
-            var res = AlignTranscript(pathToConfigFile, pathToAudioFile, pathToTranscriptFile);
-
-            Console.WriteLine("Aligning result: " + res);*/
-
-
-            /*Aligner aligner = new Aligner("../../resource/config.xml",	pathToAudioFile, pathToTranscriptFile);	
-		    //Aligner aligner = new Aligner("./src/config.xml",	relativePathToAudio, relativePathToTranscript);
-
-            aligner.setAddOutOfGrammarBranchProperty("true");
-		    aligner.allowDeletions();
-		    aligner.setNumGrammarJumps(2);
-		    aligner.allowBackwardJumps();
-		
-		    aligner.setForwardJumpProbability(0.12);
-		    aligner.setBackwardJumpProbability(0.001);
-		    //BufferedReader reader = new BufferedReader(new FileReader("./result.txt"));
-		    string result = aligner.align();
-		    Console.WriteLine(result);*/
-
-
+            
             // Louis CK video
-            var youtubeId = "Y8ynUspj4c8";
+            var youtubeId = "ZlU8jLLj0U0";
             var audioFilePath = DownloadYoutubeAudio(youtubeId);
 
             Console.WriteLine("Start conversion");
@@ -171,8 +148,7 @@ namespace Test
 
             // Register the progress events. We treat the download progress as 85% of the progress and the extraction progress only as 15% of the progress,
             // because the download will take much longer than the audio extraction.
-            /*audioDownloader.DownloadProgressChanged += DownloadProgressChangedEvent;
-            audioDownloader.AudioExtractionProgressChanged += (sender, arguments) => Console.WriteLine("Audio extraction at " + arguments.ProgressPercentage + "%");*/
+            audioDownloader.DownloadStarted += (sender, args) => Console.WriteLine("Download started");
             audioDownloader.DownloadFinished += (sender, arguments) => Console.WriteLine("Download finsihed");
 
             /*
@@ -186,15 +162,6 @@ namespace Test
 
             return pathToAudioFile;
         }
-
-        /*private static void DownloadProgressChangedEvent(object sender, ProgressEventArgs arguments)
-        {
-            var percent = (int)arguments.ProgressPercentage;
-            if (percent % 10 == 0)
-            {
-                Console.WriteLine("Download at " + arguments.ProgressPercentage + "%"); 
-            }
-        }*/
 
         private static string GetYoutubeLink(string youtubeId)
         {
@@ -214,6 +181,8 @@ namespace Test
 
             var outputFilePath = Path.GetDirectoryName(inputFilePath) + "/" + outputFileName + "." +
                                  Path.GetExtension(inputFilePath);
+
+            File.Delete(outputFilePath);
 
             var startTime = new TimeSpan(0, 0, 0, 0, extractStartInMs).ToString();
             var duration = new TimeSpan(0, 0, 0, 0, (extractEndInMs - extractStartInMs)).ToString();
@@ -319,7 +288,7 @@ namespace Test
                     // this will cause our main thread to wait for the
                     // stream to close (which is when ffmpeg quits)
                     string errString = exeProcess.StandardError.ReadToEnd();
-                    Console.WriteLine(outString);
+                    //Console.WriteLine(outString);
                     Console.WriteLine(errString);
                     //byte[] fileBytes = File.ReadAllBytes(outputFilePath);
                     /*if (fileBytes.Length > 0)
