@@ -171,8 +171,9 @@ namespace Test
 
             // Register the progress events. We treat the download progress as 85% of the progress and the extraction progress only as 15% of the progress,
             // because the download will take much longer than the audio extraction.
-            audioDownloader.DownloadProgressChanged += DownloadProgressChangedEvent;
-            audioDownloader.AudioExtractionProgressChanged += (sender, arguments) => Console.WriteLine("Audio extraction at " + arguments.ProgressPercentage + "%");
+            /*audioDownloader.DownloadProgressChanged += DownloadProgressChangedEvent;
+            audioDownloader.AudioExtractionProgressChanged += (sender, arguments) => Console.WriteLine("Audio extraction at " + arguments.ProgressPercentage + "%");*/
+            audioDownloader.DownloadFinished += (sender, arguments) => Console.WriteLine("Download finsihed");
 
             /*
              * Execute the audio downloader.
@@ -186,14 +187,14 @@ namespace Test
             return pathToAudioFile;
         }
 
-        private static void DownloadProgressChangedEvent(object sender, ProgressEventArgs arguments)
+        /*private static void DownloadProgressChangedEvent(object sender, ProgressEventArgs arguments)
         {
             var percent = (int)arguments.ProgressPercentage;
             if (percent % 10 == 0)
             {
                 Console.WriteLine("Download at " + arguments.ProgressPercentage + "%"); 
             }
-        }
+        }*/
 
         private static string GetYoutubeLink(string youtubeId)
         {
@@ -279,6 +280,9 @@ namespace Test
             var ffmpegPath = PathToProject + "/resource/ffmpeg/ffmpeg.exe";
 
             string outputFilePath = inputFilePath.Replace(".mp3", ".wav");
+
+            // cleanup previous file
+            File.Delete(outputFilePath);
             /*try
             {
                 Process process = new Process();
