@@ -19,9 +19,16 @@ namespace Test
         {
             PathToProject = Environment.CurrentDirectory + "/../..";
 
+            var downloadFolderPath = PathToProject + "/downloads";
+
+            var existingAudioFiles = Directory.GetFiles(downloadFolderPath);
+            foreach (var existingAudioFile in existingAudioFiles)
+            {
+                Console.WriteLine(Path.GetFileNameWithoutExtension(existingAudioFile));
+            }
             
-            // Louis CK video
-            var youtubeId = "ZlU8jLLj0U0";
+            Console.WriteLine("Please write youtube id");
+            var youtubeId = Console.ReadLine();
             var audioFilePath = DownloadYoutubeAudio(youtubeId);
 
             Console.WriteLine("Start conversion");
@@ -123,7 +130,7 @@ namespace Test
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-
+            
             var downloadFolderPath = PathToProject + "/downloads";
             
             var youtubeLink = GetYoutubeLink(youtubeId);
@@ -143,24 +150,40 @@ namespace Test
              * The first argument is the video where the audio should be extracted from.
              * The second argument is the path to save the audio file.
              */
-            var pathToAudioFile = Path.Combine(downloadFolderPath, video.Title + video.AudioExtension);
-            var audioDownloader = new AudioDownloader(video, pathToAudioFile);
+            var pathToAudioFile = Path.Combine(downloadFolderPath, youtubeId + video.AudioExtension);
 
-            // Register the progress events. We treat the download progress as 85% of the progress and the extraction progress only as 15% of the progress,
-            // because the download will take much longer than the audio extraction.
-            audioDownloader.DownloadStarted += (sender, args) => Console.WriteLine("Download started");
-            audioDownloader.DownloadFinished += (sender, arguments) => Console.WriteLine("Download finsihed");
+            if (!File.Exists(pathToAudioFile))
+            {
+                var audioDownloader = new AudioDownloader(video, pathToAudioFile);
 
-            /*
-             * Execute the audio downloader.
-             * For GUI applications note, that this method runs synchronously.
-             */
-            audioDownloader.Execute();
+                // Register the progress events. We treat the download progress as 85% of the progress and the extraction progress only as 15% of the progress,
+                // because the download will take much longer than the audio extraction.
+                //audioDownloader.DownloadStarted += (sender, args) => Console.WriteLine("Download started");
+                //audioDownloader.DownloadFinished += (sender, arguments) => Console.WriteLine("Download finsihed");
+                audioDownloader.DownloadProgressChanged += AudioDownloaderOnDownloadProgressChanged;
 
-            stopWatch.Stop();
-            Console.WriteLine("Download done in " + stopWatch.Elapsed);
+                /*
+                 * Execute the audio downloader.
+                 * For GUI applications note, that this method runs synchronously.
+                 */
+                audioDownloader.Execute();
+
+                stopWatch.Stop();
+                Console.WriteLine("Download done in " + stopWatch.Elapsed); 
+            }
 
             return pathToAudioFile;
+        }
+
+        private static int lastPercent = 0;
+        private static void AudioDownloaderOnDownloadProgressChanged(object sender, ProgressEventArgs progressEventArgs)
+        {
+            var percent = (int)progressEventArgs.ProgressPercentage;
+            if (percent > lastPercent)
+            {
+                Console.WriteLine("Download at " + percent + "%");
+                lastPercent = percent;
+            }
         }
 
         private static string GetYoutubeLink(string youtubeId)
