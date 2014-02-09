@@ -58,8 +58,10 @@ namespace Test
             File.WriteAllText(pathToTranscript, transcript);
             var alignerResult = AlignTranscript(pathToConfigFile, extractFilePath, pathToTranscript);
 
+            var alignmentResult = new AlignmentResult(alignerResult);
+
             Console.Write("Aligner result:");
-            Console.WriteLine(alignerResult);
+            Console.WriteLine(string.Join(", ", alignmentResult.TimestampedWords.Select(w => w.Word + " (" + w.Start.ToString() + ")")hey what do you think about italian? for a first date? depends. Are we talking pizza or pasta?));
 
             Console.ReadLine();
         }
