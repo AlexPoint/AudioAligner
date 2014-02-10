@@ -61,7 +61,7 @@ namespace Test
             var alignmentResult = new AlignmentResult(alignerResult);
 
             Console.Write("Aligner result:");
-            Console.WriteLine(string.Join(", ", alignmentResult.TimestampedWords.Select(w => w.Word + " (" + w.Start.ToString() + ")")hey what do you think about italian? for a first date? depends. Are we talking pizza or pasta?));
+            Console.WriteLine(string.Join(", ", alignmentResult.TimestampedWords.Select(w => w.Word + " (" + w.Start.ToString() + ")")));
 
             Console.ReadLine();
         }
@@ -160,8 +160,6 @@ namespace Test
 
                 // Register the progress events. We treat the download progress as 85% of the progress and the extraction progress only as 15% of the progress,
                 // because the download will take much longer than the audio extraction.
-                //audioDownloader.DownloadStarted += (sender, args) => Console.WriteLine("Download started");
-                //audioDownloader.DownloadFinished += (sender, arguments) => Console.WriteLine("Download finsihed");
                 audioDownloader.DownloadProgressChanged += AudioDownloaderOnDownloadProgressChanged;
 
                 /*
