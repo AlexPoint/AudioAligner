@@ -21,7 +21,7 @@ namespace Test
 
             var downloadFolderPath = PathToProject + "/downloads";
 
-            var existingAudioFiles = Directory.GetFiles(downloadFolderPath);
+            var existingAudioFiles = Directory.GetFiles(downloadFolderPath, "*.mp3");
             foreach (var existingAudioFile in existingAudioFiles)
             {
                 Console.WriteLine(Path.GetFileNameWithoutExtension(existingAudioFile));
@@ -38,11 +38,11 @@ namespace Test
 
             Console.WriteLine("Splitting audio file");
 
-            Console.WriteLine("Write starting time (in ms)");
+            Console.WriteLine("Write start time (in ms)");
             var output = Console.ReadLine();
             var startTime = int.Parse(output);
 
-            Console.WriteLine("Write starting time (in ms)");
+            Console.WriteLine("Write end time (in ms)");
             var output2 = Console.ReadLine();
             var endTime = int.Parse(output2);
 
