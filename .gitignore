@@ -109,3 +109,4 @@ UpgradeLog*.XML
 
 # audio file download folder
 downloads/
+Test/resource/tempTranscript.txt
